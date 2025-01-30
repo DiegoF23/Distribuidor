@@ -1,5 +1,7 @@
 import React, { createContext, useContext } from "react";
 import Stock from "../../pages/Stock";
+import Productos from "../../pages/Productos";
+import { ProductosProvider } from "../Productos/ProductosContext";
 // Rutas definidas en el contexto
 const RoutesContext = createContext();
 
@@ -24,6 +26,12 @@ export const RoutesProvider = ({ children }) => {
       path: "/stock",
       name: "Stock",
       element: <Stock />,
+    },
+    {
+      id: 5,
+      path: "/productos",
+      name: "Productos",
+      element: <ProductosProvider><Productos /></ProductosProvider>,
     },
   ];
 
