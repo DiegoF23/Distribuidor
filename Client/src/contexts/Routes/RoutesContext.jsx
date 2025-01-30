@@ -1,5 +1,7 @@
 import React, { createContext, useContext } from "react";
 import Stock from "../../pages/Stock";
+import Productos from "../../pages/Productos";
+import { ProductosProvider } from "../Productos/ProductosContext";
 import { CgProfile } from "react-icons/cg";
 import { FaHouse,FaGear,FaBoxesStacked } from "react-icons/fa6";
 import Login from "../../layouts/Login";
@@ -33,6 +35,12 @@ export const RoutesProvider = ({ children }) => {
     },
     {
       id: 5,
+      path: "/productos",
+      name: "Productos",
+      element: <ProductosProvider><Productos /></ProductosProvider>,
+    },
+    {
+      id: 6,
       icon: <FaBoxesStacked />,
       path: "/login",
       name: "Login",
