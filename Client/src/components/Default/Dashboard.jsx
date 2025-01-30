@@ -3,17 +3,18 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Menu from "./Menu";
 import { useRoutesContext } from "../../contexts/Routes/RoutesContext";
+import '../../styles/Dashboard/Dashboard.css';
 
 const Dashboard = () => {
   const routes = useRoutesContext();
 
   return (
-    <div className="h-screen">
+    <div className="container">
       {/* Menú */}
       <Menu />
 
       {/* Configuración de rutas */}
-      <main className="p-4">
+      <main className="dashboard-elements">
         <Routes>
           {routes.map((route) => (
             <Route key={route.id} path={route.path} element={route.element} />

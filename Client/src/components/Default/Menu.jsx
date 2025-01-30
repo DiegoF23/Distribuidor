@@ -1,25 +1,30 @@
 // src/components/Menu.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import '../../styles/Dashboard/Dashboard.css';
 import { useRoutesContext } from "../../contexts/Routes/RoutesContext";
 
 const Menu = () => {
   const routes = useRoutesContext();
 
   return (
-    <nav className="p-4 border-b">
-      <ul className="flex space-x-4">
+    <nav className='MenuComponente'>
+      <div className="menu-btn">
         {routes.map((route) => (
-          <li key={route.id}>
+          <div 
+          className={`btn-menu ${location.pathname === route.path ? "active" : ""}`}
+           key={route.id}>
             <Link
               to={route.path}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="link"
             >
+              {route.icon}
               {route.name}
             </Link>
-          </li>
+           <br /><br />
+          </div>
         ))}
-      </ul>
+      </div>
     </nav>
   );
 };
