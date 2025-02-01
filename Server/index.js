@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const proveedoresRoutes = require("./Routes/proveedoresRoutes");
 const clientesRoutes = require("./Routes/clientesRoutes");
-const ejemplo = require("./controllers/controller");
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -24,5 +24,5 @@ app.use("/api", productosRoutes);
 // Servidor
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-    ejemplo.ejemplo();
+    
 });

@@ -5,6 +5,8 @@ import { ProductosProvider } from "../Productos/ProductosContext";
 import { CgProfile } from "react-icons/cg";
 import { FaHouse,FaGear,FaBoxesStacked } from "react-icons/fa6";
 import Login from "../../layouts/Login";
+import Proveedores from "../../pages/Proveedores";
+import Clientes from "../../pages/Clientes";
 
 // Rutas definidas en el contexto
 const RoutesContext = createContext();
@@ -45,6 +47,20 @@ export const RoutesProvider = ({ children }) => {
       path: "/login",
       name: "Login",
       element: <Login />,
+    },
+    {
+      id: 7,
+      icon: <FaBoxesStacked />,
+      path: "/Porveedores",
+      name: "Proveedores",
+      element: <Proveedores />,
+    },
+    {
+      id: 8,
+      icon: <FaBoxesStacked />,
+      path: "/Clientes",
+      name: "Clientes",
+      element: <Clientes />,
     },
   ];
 
