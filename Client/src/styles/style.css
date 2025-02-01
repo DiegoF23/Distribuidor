@@ -1,0 +1,10 @@
+#root{
+    font-family: 'Inter', sans-serif;
+--color-primary-700:rgba(4, 19, 45, 1);
+--color-primary-600:rgba(8, 35, 81, 1);
+--color-primary-500:rgba(22, 57, 118, 1);
+--color-primary-400:rgba(38, 85, 166, 1);
+--color-primary-300:rgba(179, 207, 255, 1);
+--color-primary-200:rgba(214, 228, 255, 1);
+--color-primary-100:rgba(240, 245, 255, 1);
+}

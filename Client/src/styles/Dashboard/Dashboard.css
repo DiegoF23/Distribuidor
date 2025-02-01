@@ -1,0 +1,38 @@
+.container{
+    width: 100vw;
+    height: 70vh;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.MenuComponente{
+    width: 12vw;
+    height:89vh;
+    border-right: 1px solid rgb(197, 197, 197);
+}
+
+.btn-menu .link{
+    cursor: pointer;
+    text-decoration: none;
+    padding: 10px;
+    color: var(--color-primary-400);
+}
+
+.btn-menu.active {
+    background-color: var(--color-primary-200); /* Color cuando está seleccionado */
+    color: var(--color-primary-500); /* Texto en blanco */
+}
+  
+  .btn-menu.active .link {
+    color: var(--color-primary-500); /* Para que el texto e icono también cambien de color */
+}
+
+.link svg, .link img {
+    margin-right: 5px;
+    margin-top: 10px; 
+}
+
+.dashboard-elements{
+    width: 86vw;
+    padding: 10px;
+}

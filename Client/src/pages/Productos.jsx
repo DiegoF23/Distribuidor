@@ -6,6 +6,7 @@ import { useApiContext } from "../contexts/api/ApiContext";
 import axios from "axios";
 const Productos = () => {
       const { API_URL } = useApiContext();
+      const [modalOpen, setModalOpen] = useState(false);
   const { productos, loading, error, obtenerProductos } = useProductos();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [productoEditando, setProductoEditando] = useState(null);
