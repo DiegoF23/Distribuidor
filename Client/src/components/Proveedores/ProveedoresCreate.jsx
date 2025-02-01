@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import {useApiContext} from '../../contexts/api/ApiContext'
 import axios from 'axios';
 
-const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit, API_URL }) => {
+const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit}) => {
+  const { API_URL } = useApiContext();
   const [nuevoProveedor, setNuevoProveedor] = useState({
     nombre: '',
     apellido: '',

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useApiContext } from '../../contexts/api/ApiContext';
 
-const ClientesCreate = ({ onAdd, cliente = null, onEdit, API_URL }) => {
+const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
+  const { API_URL } = useApiContext();
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre_cliente: '',
     apellido_cliente: '',

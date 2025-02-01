@@ -5,9 +5,8 @@ import { StockProvider } from "../contexts/Stock/StockContext";
 const Stock = () => {
   return (
     <div>
-        <Header />
         <div className="p-4">
-            <h1 className="text-2xl font-bold text-gray-800">Stock</h1>
+           
             <StockProvider>
               <MainStock/>
             </StockProvider>

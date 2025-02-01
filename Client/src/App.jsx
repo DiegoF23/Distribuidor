@@ -18,8 +18,7 @@ function App() {
             
             <Dashboard />
           </RoutesProvider>
-          <Proveedores API_URL={API_URL}/>
-          <Clientes API_URL={API_URL} />
+         
         </div>
       </BrowserRouter>
     </>

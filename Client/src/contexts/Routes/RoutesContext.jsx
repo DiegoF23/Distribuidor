@@ -4,6 +4,8 @@ import Productos from "../../pages/Productos";
 import { ProductosProvider } from "../Productos/ProductosContext";
 import { CgProfile } from "react-icons/cg";
 import { FaHouse,FaGear,FaBoxesStacked } from "react-icons/fa6";
+import { FaUser, FaTruckLoading } from "react-icons/fa";
+import { PiBeerBottleFill,PiUserListBold } from "react-icons/pi";
 import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
 import Clientes from "../../pages/Clientes";
@@ -37,27 +39,28 @@ export const RoutesProvider = ({ children }) => {
     },
     {
       id: 5,
+      icon: <PiBeerBottleFill />,
       path: "/productos",
       name: "Productos",
       element: <ProductosProvider><Productos /></ProductosProvider>,
     },
     {
       id: 6,
-      icon: <FaBoxesStacked />,
+      icon: <FaUser />,
       path: "/login",
       name: "Login",
       element: <Login />,
     },
     {
       id: 7,
-      icon: <FaBoxesStacked />,
+      icon: <FaTruckLoading />,
       path: "/Porveedores",
       name: "Proveedores",
       element: <Proveedores />,
     },
     {
       id: 8,
-      icon: <FaBoxesStacked />,
+      icon: <PiUserListBold />,
       path: "/Clientes",
       name: "Clientes",
       element: <Clientes />,

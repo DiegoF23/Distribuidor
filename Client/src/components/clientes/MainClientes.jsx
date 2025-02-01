@@ -3,8 +3,10 @@ import axios from 'axios';
 import { FaWhatsapp } from 'react-icons/fa';
 import ClientesDelete from './ClientesDelete';
 import ClientesCreate from './ClientesCreate';
+import {useApiContext} from '../../contexts/api/ApiContext'
 
-const MainClientes = ({ API_URL }) => {
+const MainClientes = ({}) => {
+  const { API_URL } = useApiContext();
   const [clientes, setClientes] = useState([]);
   const [clienteEdit, setClienteEdit] = useState(null);
 

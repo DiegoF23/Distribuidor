@@ -5,7 +5,7 @@ import MainClientes from '../components/clientes/MainClientes';
 
 const Clientes = ({API_URL}) => {
 
-    <ClientesCreate API_URL={API_URL}/>;
+    <ClientesCreate />;
     <ClientesDelete API_URL={API_URL}/>;
   
     return (

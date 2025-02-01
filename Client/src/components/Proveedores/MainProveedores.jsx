@@ -3,8 +3,10 @@ import axios from 'axios';
 import { FaWhatsapp } from 'react-icons/fa';
 import ProveedoresDelete from './ProveedoresDelete';
 import ProveedoresCreate from './ProveedoresCreate';
+import {useApiContext} from '../../contexts/api/ApiContext'
 
-const MainProveedores = ({ API_URL }) => {
+const MainProveedores = ({}) => {
+  const { API_URL } = useApiContext();
   const [proveedores, setProveedores] = useState([]);
   const [proveedorEdit, setProveedorEdit] = useState(null);
 
