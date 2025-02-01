@@ -331,7 +331,7 @@ ON DUPLICATE KEY UPDATE cantidad_disponible = 350;
 
 -- 3. Insertar movimiento de stock en la Sucursal 1
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (@id_cepita, 1, 2, 'entrada', 500);
+VALUES (@id_cepita, 1, 2, 'entrada', 350);
 
 -- 4. Insertar stock en la Sucursal 2 (Valor Óptimo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
