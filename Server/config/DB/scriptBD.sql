@@ -1,4 +1,4 @@
-create database if not exists distribuidor;
+CREATE database if not exists  distribuidor;
 use distribuidor;
 
 -- 🔴 Eliminar tablas si existen
@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS Usuario_Sucursal;
 DROP TABLE IF EXISTS Usuario;
 DROP TABLE IF EXISTS Sucursal;
 DROP TABLE IF EXISTS Rol;
+DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS proveedores;
 
 -- 🔴 Eliminar procedimientos y funciones si existen
 DROP PROCEDURE IF EXISTS CalcularUnidadesLote;
