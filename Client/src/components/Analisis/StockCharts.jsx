@@ -1,6 +1,6 @@
 import React from "react";
 import { Pie, Bar } from "react-chartjs-2";
-import ChartJS from "chart.js/auto"; // Asegura el registro automático
+import ChartJS from "chart.js/auto"; 
 
 const StockCharts = ({ stock }) => {
   const dataPie = {

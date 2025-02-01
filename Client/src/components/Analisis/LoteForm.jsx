@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 
 const LoteForm = ({ lote, setLote, onSubmit, editingLoteId }) => {
-  // Si se está editando, puedes cargar el lote seleccionado en el formulario
+  
   useEffect(() => {
-    // Aquí podrías cargar los datos del lote a editar si lo manejas a través de props
+    
   }, [editingLoteId]);
 
   return (
@@ -15,7 +15,7 @@ const LoteForm = ({ lote, setLote, onSubmit, editingLoteId }) => {
           value={lote.producto}
           onChange={(e) => setLote({ ...lote, producto: e.target.value })}
         >
-          {/* Asume que tienes una lista de productos o la recibes como prop */}
+          
           <option value="Pepsi 2L">Pepsi 2L</option>
           <option value="Coca-Cola 2L">Coca-Cola 2L</option>
           <option value="Sprite 2L">Sprite 2L</option>
