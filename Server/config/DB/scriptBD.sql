@@ -93,10 +93,11 @@ CREATE TABLE Lote_Configuracion (
 
 -- 🟢 Tabla de lotes con detalles de ingreso
 CREATE TABLE Lote (
-    id_lote INT PRIMARY KEY AUTO_INCREMENT,
+ id_lote INT PRIMARY KEY AUTO_INCREMENT,
     id_producto INT NOT NULL,
     id_configuracion INT NOT NULL,
     id_usuario INT NOT NULL,
+    id_sucursal INT NOT NULL default 1,
     codigo_lote VARCHAR(50) UNIQUE NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -107,6 +108,7 @@ CREATE TABLE Lote (
     cantidad_fardos INT NOT NULL DEFAULT 0,
     cantidad_botellas INT NOT NULL DEFAULT 0,
     FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
+    foreign key (id_sucursal) references Sucursal (id_sucursal),
     FOREIGN KEY (id_configuracion) REFERENCES Lote_Configuracion(id_configuracion),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
