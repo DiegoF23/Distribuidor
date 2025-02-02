@@ -3,19 +3,25 @@ import Stock from "../../pages/Stock";
 import Productos from "../../pages/Productos";
 import { ProductosProvider } from "../Productos/ProductosContext";
 import { CgProfile } from "react-icons/cg";
-import { FaHouse,FaGear,FaBoxesStacked } from "react-icons/fa6";
+import { FaHouse, FaGear, FaBoxesStacked } from "react-icons/fa6";
 import { FaUser, FaTruckLoading } from "react-icons/fa";
-import { PiBeerBottleFill,PiUserListBold } from "react-icons/pi";
+import { PiBeerBottleFill, PiUserListBold } from "react-icons/pi";
 import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
 import Clientes from "../../pages/Clientes";
-
+import Lotes from "../../pages/Lotes";
 // Rutas definidas en el contexto
 const RoutesContext = createContext();
 
 export const RoutesProvider = ({ children }) => {
   const routes = [
-    { id: 1, icon:<FaHouse/> ,path: "/", name: "Home", element: <h2>Bienvenido al Home</h2> },
+    {
+      id: 1,
+      icon: <FaHouse />,
+      path: "/",
+      name: "Home",
+      element: <h2>Bienvenido al Home</h2>,
+    },
     {
       id: 2,
       icon: <CgProfile />,
@@ -29,7 +35,7 @@ export const RoutesProvider = ({ children }) => {
       path: "/configuracion",
       name: "Configuración",
       element: <h2>Configuración de usuario</h2>,
-    }, 
+    },
     {
       id: 4,
       icon: <FaBoxesStacked />,
@@ -42,7 +48,11 @@ export const RoutesProvider = ({ children }) => {
       icon: <PiBeerBottleFill />,
       path: "/productos",
       name: "Productos",
-      element: <ProductosProvider><Productos /></ProductosProvider>,
+      element: (
+        <ProductosProvider>
+          <Productos />
+        </ProductosProvider>
+      ),
     },
     {
       id: 6,
@@ -64,6 +74,13 @@ export const RoutesProvider = ({ children }) => {
       path: "/Clientes",
       name: "Clientes",
       element: <Clientes />,
+    },
+    {
+      id: 9,
+      icon: <PiUserListBold />,
+      path: "/Lotes",
+      name: "Lotes",
+      element: <Lotes />,
     },
   ];
 
