@@ -1,5 +1,6 @@
-CREATE database if not exists  distribuidor;
-use distribuidor;
+-- Crear la base de datos (si no existe) y usarla
+CREATE DATABASE IF NOT EXISTS distribuidor;
+USE distribuidor;
 
 -- 🔴 Eliminar tablas si existen
 DROP TABLE IF EXISTS Movimiento_Stock;
@@ -13,6 +14,10 @@ DROP TABLE IF EXISTS Sucursal;
 DROP TABLE IF EXISTS Rol;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS proveedores;
+-- Nuevas tablas de socios, aportes y ganancias se eliminarán también si existen:
+DROP TABLE IF EXISTS Ganancias;
+DROP TABLE IF EXISTS Aportes;
+DROP TABLE IF EXISTS Socios;
 
 -- 🔴 Eliminar procedimientos y funciones si existen
 DROP PROCEDURE IF EXISTS CalcularUnidadesLote;
@@ -81,6 +86,7 @@ CREATE TABLE Stock (
 );
 ALTER TABLE Stock
 ADD CONSTRAINT unique_producto_sucursal UNIQUE (id_producto, id_sucursal);
+
 -- 🟢 Tabla de configuraciones de lote
 CREATE TABLE Lote_Configuracion (
     id_configuracion INT PRIMARY KEY AUTO_INCREMENT,
@@ -93,11 +99,11 @@ CREATE TABLE Lote_Configuracion (
 
 -- 🟢 Tabla de lotes con detalles de ingreso
 CREATE TABLE Lote (
- id_lote INT PRIMARY KEY AUTO_INCREMENT,
+    id_lote INT PRIMARY KEY AUTO_INCREMENT,
     id_producto INT NOT NULL,
     id_configuracion INT NOT NULL,
     id_usuario INT NOT NULL,
-    id_sucursal INT NOT NULL default 1,
+    id_sucursal INT NOT NULL DEFAULT 1,
     codigo_lote VARCHAR(50) UNIQUE NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +114,7 @@ CREATE TABLE Lote (
     cantidad_fardos INT NOT NULL DEFAULT 0,
     cantidad_botellas INT NOT NULL DEFAULT 0,
     FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
-    foreign key (id_sucursal) references Sucursal (id_sucursal),
+    FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal),
     FOREIGN KEY (id_configuracion) REFERENCES Lote_Configuracion(id_configuracion),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
@@ -129,7 +135,6 @@ CREATE TABLE Movimiento_Stock (
 
 -- 🟢 Procedimiento para calcular unidades en un lote
 DELIMITER //
-
 CREATE PROCEDURE CalcularUnidadesLote(
     IN p_id_configuracion INT,
     IN p_cantidad_pallets INT,
@@ -157,11 +162,9 @@ BEGIN
         (p_cantidad_fardos * v_botellas) +
         p_cantidad_botellas;
 END //
-
 DELIMITER ;
 
 DELIMITER //
-
 CREATE FUNCTION EstadoStock(p_id_producto INT, p_id_sucursal INT) 
 RETURNS VARCHAR(50) 
 DETERMINISTIC
@@ -171,15 +174,13 @@ BEGIN
     DECLARE stock_minimo INT;
     DECLARE stock_optimo INT;
 
-    -- Obtener el stock actual, stock mínimo y stock óptimo para el producto y sucursal específicos
     SELECT st.cantidad_disponible, p.stock_minimo, p.stock_optimo 
     INTO stock_actual, stock_minimo, stock_optimo 
     FROM Stock st
     JOIN Producto p ON st.id_producto = p.id_producto
     WHERE st.id_producto = p_id_producto AND st.id_sucursal = p_id_sucursal
-    LIMIT 1;  -- Asegurar que solo se devuelva una fila
+    LIMIT 1;
 
-    -- Determinar el estado del stock
     IF stock_actual < stock_minimo THEN
         SET estado = '🔴 Stock Bajo';
     ELSEIF stock_actual BETWEEN stock_minimo AND stock_optimo THEN
@@ -190,7 +191,6 @@ BEGIN
 
     RETURN estado;
 END //
-
 DELIMITER ;
 
 -- 🟢 Insertar roles
@@ -249,106 +249,67 @@ VALUES (1, 1, 2, 'entrada', @total_botellas);
 -- 🟢 Insertar un nuevo producto (Pepsi 2L)
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Pepsi', 'PepsiCo', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 2000, 150, 75);
+
 -- 🟢 Insertar un nuevo producto (Cepita 1.5L)
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Cepita 1.5L', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 1500, 500, 175);
 
--- Obtener el ID del nuevo producto
-SET @id_pepsi = LAST_INSERT_ID();
-
--- Insertar un lote de Pepsi (usuario: Carlos López, sucursal: Norte)
-SET @cantidad_pallets = 1;  -- Insertamos 1 pallet
-CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
-
-INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
-VALUES (@id_pepsi, @id_configuracion, 3, 'L20240310-B', '2025-04-10', 31000.00, @total_botellas, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas);
-
--- Actualizar el stock en la sucursal 2 (Sucursal Norte)
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (@id_pepsi, 2, @total_botellas)
-ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
-
--- Registrar el movimiento de stock en la sucursal 2
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (@id_pepsi, 2, 3, 'entrada', @total_botellas);
-
-
-
-
-
-
-
--- Definir la configuración del lote
-SET @id_configuracion = 1;  -- Configuración estándar: 1 pallet = 3 bases, 1 base = 4 fardos, 1 fardo = 8 botellas
-SET @cantidad_pallets = 4;  -- Insertamos 4 pallets
-SET @cantidad_bases = 0;    -- No se ingresan bases directamente
-SET @cantidad_fardos = 0;   -- No se ingresan fardos directamente
-SET @cantidad_botellas = 0; -- No se ingresan botellas sueltas
-
--- Calcular la cantidad total de botellas para 4 pallets
-CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
-
--- Insertar el nuevo lote de Coca-Cola con referencia al usuario y sucursal
-INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
-VALUES (
-    1,                          -- id_producto: Coca-Cola
-    @id_configuracion,          -- id_configuracion: Configuración estándar
-    2,                          -- id_usuario: Ana Gómez (Gerente)
-    'L20240315-C',              -- Código de lote único
-    '2025-05-20',               -- Fecha de vencimiento
-    124000.00,                  -- Costo del lote
-    @total_botellas,            -- Total de botellas calculado
-    @cantidad_pallets,          -- Cantidad de pallets
-    @cantidad_bases,            -- Cantidad de bases
-    @cantidad_fardos,           -- Cantidad de fardos
-    @cantidad_botellas          -- Cantidad de botellas
-);
-
--- Actualizar el stock en la sucursal 1 (Sucursal Central)
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (1, 1, @total_botellas)
-ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
-
--- Registrar el movimiento de stock en la sucursal 1
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (1, 1, 2, 'entrada', @total_botellas);
--- ----------------------- 
+-- Obtener el ID del producto Pepsi
 SET @id_pepsi = (SELECT id_producto FROM Producto WHERE nombre = 'Pepsi' LIMIT 1);
 
--- 3. Insertar stock en la Sucursal 1 (Stock Bajo)
+-- Insertar stock en la sucursal 1 para Pepsi (Stock Bajo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_pepsi, 1, 50)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 50;
 
--- 4. Insertar un movimiento de stock
+-- Registrar el movimiento de stock para Pepsi en la sucursal 1
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_pepsi, 1, 2, 'entrada', 50);
 
-
--- 1. Obtener el ID del producto Cepita 2L
+-- Obtener el ID del producto Cepita 1.5L
 SET @id_cepita = (SELECT id_producto FROM Producto WHERE nombre = 'Cepita 1.5L' LIMIT 1);
 
--- 2. Insertar stock en la Sucursal 1 (Valor Óptimo)
+-- Insertar stock en la sucursal 1 para Cepita 1.5L (Valor Intermedio: 350)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 1, 350)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 350;
 
--- 3. Insertar movimiento de stock en la Sucursal 1
+-- Registrar movimiento de stock para Cepita 1.5L en la sucursal 1
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 1, 2, 'entrada', 350);
 
--- 4. Insertar stock en la Sucursal 2 (Valor Óptimo)
+-- Insertar stock en la sucursal 2 para Cepita 1.5L (Valor Intermedio: 350)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 2, 350)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 310;
 
--- 5. Insertar movimiento de stock en la Sucursal 2
+-- Registrar movimiento de stock para Cepita 1.5L en la sucursal 2
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 2, 3, 'entrada', 350);
 
+-- ----------------------- 
+-- Definir la configuración del lote (para otro ejemplo)
+SET @id_configuracion = 1;  -- Configuración estándar
+SET @cantidad_pallets = 4;
+SET @cantidad_bases = 0;
+SET @cantidad_fardos = 0;
+SET @cantidad_botellas = 0;
 
-select * from stock;
+CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
 
+INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
+VALUES (
+    1, @id_configuracion, 2, 'L20240315-C', '2025-05-20', 124000.00, @total_botellas, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas
+);
+
+INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
+VALUES (1, 1, @total_botellas)
+ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
+
+INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
+VALUES (1, 1, 2, 'entrada', @total_botellas);
+
+-- ----------------------- 
 
 -- 📌 Consultas predefinidas
 
@@ -392,11 +353,7 @@ JOIN Producto p ON ms.id_producto = p.id_producto
 JOIN Sucursal s ON ms.id_sucursal = s.id_sucursal
 JOIN Usuario u ON ms.id_usuario = u.id_usuario;
 
-
-
-select * from producto;
-
-
+SELECT * FROM producto;
 
 SELECT 
          p.nombre AS producto,
@@ -405,34 +362,100 @@ SELECT
          p.stock_optimo,
          p.stock_minimo,
          EstadoStock(p.id_producto, s.id_sucursal) AS estado_stock
-       FROM Stock st
-       JOIN Producto p ON st.id_producto = p.id_producto
-       JOIN Sucursal s ON st.id_sucursal = s.id_sucursal
-       WHERE st.id_sucursal = 1;
-
+FROM Stock st
+JOIN Producto p ON st.id_producto = p.id_producto
+JOIN Sucursal s ON st.id_sucursal = s.id_sucursal
+WHERE st.id_sucursal = 1;
 
 CREATE TABLE proveedores (
-id_proveedor INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-apellido_proveedor VARCHAR (50),
-nombre_proveedor VARCHAR (50),
-codigo_proveedor VARCHAR (50),
-email_proveedor VARCHAR (50),
-numero_proveedor VARCHAR (50)
+    id_proveedor INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    apellido_proveedor VARCHAR(50),
+    nombre_proveedor VARCHAR(50),
+    codigo_proveedor VARCHAR(50),
+    email_proveedor VARCHAR(50),
+    numero_proveedor VARCHAR(50)
 );
 
 CREATE TABLE clientes (
-id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-apellido_cliente VARCHAR (50),
-nombre_cliente VARCHAR (50),
-mail_cliente VARCHAR (50),
-numero_cliente VARCHAR (50)
+    id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    apellido_cliente VARCHAR(50),
+    nombre_cliente VARCHAR(50),
+    mail_cliente VARCHAR(50),
+    numero_cliente VARCHAR(50)
 );
 
-INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,email_proveedor,numero_proveedor) values (
-"Albornoz","Alvaro","AA","alvaro@gmail.com","3816821901"
-);
-INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,email_proveedor,numero_proveedor) values (
-"Flores","Diego","FD","diego@gmail.com","3816155136"
+INSERT INTO proveedores (apellido_proveedor, nombre_proveedor, codigo_proveedor, email_proveedor, numero_proveedor) 
+VALUES ('Albornoz','Alvaro','AA','alvaro@gmail.com','3816821901');
+
+INSERT INTO proveedores (apellido_proveedor, nombre_proveedor, codigo_proveedor, email_proveedor, numero_proveedor) 
+VALUES ('Flores','Diego','FD','diego@gmail.com','3816155136');
+
+SELECT * FROM proveedores;
+
+-- =============================
+-- NUEVA SECCIÓN: SOCIOS, APORTES Y GANANCIAS
+-- =============================
+
+-- Tabla de Socios (actualizada para incluir id_sucursal)
+CREATE TABLE Socios (
+    id_socio INT PRIMARY KEY AUTO_INCREMENT,
+    id_sucursal INT NOT NULL DEFAULT 1,
+    nombre VARCHAR(100) NOT NULL,
+    fecha_maxima_participacion DATE NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(15),
+    mail VARCHAR(100),
+    FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal)
 );
 
-select * from proveedores;
+-- Tabla de Aportes (cada socio puede tener múltiples aportes)
+CREATE TABLE Aportes (
+    id_aporte INT PRIMARY KEY AUTO_INCREMENT,
+    id_socio INT NOT NULL,
+    monto_aporte DECIMAL(10,2) NOT NULL,
+    fecha_aporte DATE NOT NULL,
+    detalle VARCHAR(255),
+    FOREIGN KEY (id_socio) REFERENCES Socios(id_socio)
+);
+
+-- Tabla de Ganancias (cada socio puede tener múltiples registros de ganancias)
+CREATE TABLE Ganancias (
+    id_ganancia INT PRIMARY KEY AUTO_INCREMENT,
+    id_socio INT NOT NULL,
+    porcentaje_ganancia DECIMAL(5,2) NOT NULL,
+    fecha_registro DATE NOT NULL,
+    detalle VARCHAR(255),
+    FOREIGN KEY (id_socio) REFERENCES Socios(id_socio)
+);
+
+-- Insertar 6 ejemplos de Socios
+-- (Si no se especifica id_sucursal, se asigna por defecto el valor 1)
+INSERT INTO Socios (nombre, fecha_maxima_participacion, direccion, telefono, mail)
+VALUES 
+('Socio Uno', '2030-12-31', 'Calle Uno 123', '123456789', 'socio1@example.com'),
+('Socio Dos', '2030-12-31', 'Calle Dos 456', '987654321', 'socio2@example.com'),
+('Socio Tres', '2030-12-31', 'Avenida Tres 789', '555555555', 'socio3@example.com'),
+('Socio Cuatro', '2030-12-31', 'Boulevard Cuatro 101', '444444444', 'socio4@example.com'),
+('Socio Cinco', '2030-12-31', 'Plaza Cinco 202', '333333333', 'socio5@example.com'),
+('Socio Seis', '2030-12-31', 'Ruta Seis 303', '222222222', 'socio6@example.com');
+
+-- También se pueden insertar socios especificando explícitamente una sucursal diferente:
+-- Por ejemplo, para asignar un socio a la Sucursal Norte (id_sucursal = 2)
+INSERT INTO Socios (id_sucursal, nombre, fecha_maxima_participacion, direccion, telefono, mail)
+VALUES 
+(2, 'Socio Siete', '2030-12-31', 'Avenida Siete 707', '777777777', 'socio7@example.com');
+
+
+-- Insertar algunos aportes de ejemplo para algunos socios
+INSERT INTO Aportes (id_socio, monto_aporte, fecha_aporte, detalle)
+VALUES 
+(1, 10000.00, '2023-01-15', 'Aporte inicial'),
+(2, 15000.00, '2023-02-10', 'Capital de trabajo'),
+(3, 20000.00, '2023-03-05', 'Aporte de productos'),
+(4, 12000.00, '2023-04-20', 'Aporte inicial'),
+(5, 18000.00, '2023-05-25', 'Aporte adicional'),
+(6, 22000.00, '2023-06-30', 'Aporte de capital');
+
+
+
+select * from socios;
