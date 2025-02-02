@@ -16,10 +16,13 @@ exports.obtenerStockSucursal = async (req, res) => {
     const [rows] = await connection.execute(
       `SELECT 
          p.nombre AS producto,
+         p.marca AS marca,
+         p.capacidad_ml AS capacidad,
          s.nombre AS sucursal,
          st.cantidad_disponible,
          p.stock_optimo,
          p.stock_minimo,
+         st.ultima_actualizacion,
          EstadoStock(p.id_producto, s.id_sucursal) AS estado_stock
        FROM Stock st
        JOIN Producto p ON st.id_producto = p.id_producto
@@ -36,3 +39,4 @@ exports.obtenerStockSucursal = async (req, res) => {
     if (connection) await connection.end();
   }
 };
+

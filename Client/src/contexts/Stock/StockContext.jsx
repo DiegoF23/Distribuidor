@@ -21,9 +21,19 @@ export const StockProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  const obtenerTodasSucursales = async (id_sucursal) => {
+    try {
+      const response = await axios.get(`${API_URL}/stock/${id_sucursal}`);
+      setStock(response.data);
+      setLoading(false);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
 
   return (
-    <StockContext.Provider value={{ stock, loading, error, obtenerStockSucursal }}>
+    <StockContext.Provider value={{ stock, loading, error, obtenerStockSucursal, obtenerTodasSucursales }}>
       {children}
     </StockContext.Provider>
   );

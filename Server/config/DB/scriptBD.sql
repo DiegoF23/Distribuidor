@@ -181,9 +181,9 @@ BEGIN
     IF stock_actual < stock_minimo THEN
         SET estado = '🔴 Stock Bajo';
     ELSEIF stock_actual BETWEEN stock_minimo AND stock_optimo THEN
-        SET estado = '🟢 Stock Óptimo';
+        SET estado = '🟡 Stock Óptimo';
     ELSE
-        SET estado = '🟡 Stock Alto';
+        SET estado = '🟢 Stock Alto';
     END IF;
 
     RETURN estado;
@@ -250,6 +250,12 @@ VALUES ('Pepsi', 'PepsiCo', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 2000, 
 -- 🟢 Insertar un nuevo producto (Cepita 1.5L)
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Cepita 1.5L', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 1500, 500, 175);
+-- 🟢 Insertar un nuevo producto (Cepita 200ml)
+INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
+VALUES ('Cepita 200ml', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 200, 300, 125);
+-- 🟢 Insertar un nuevo producto (Fanta 200ml)
+INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
+VALUES ('Fanta 500ml', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'lata', 500, 400, 100);
 
 -- Obtener el ID del nuevo producto
 SET @id_pepsi = LAST_INSERT_ID();
@@ -316,7 +322,7 @@ SET @id_pepsi = (SELECT id_producto FROM Producto WHERE nombre = 'Pepsi' LIMIT 1
 -- 3. Insertar stock en la Sucursal 1 (Stock Bajo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_pepsi, 1, 50)
-ON DUPLICATE KEY UPDATE cantidad_disponible = 50;
+ON DUPLICATE KEY UPDATE cantidad_disponible = 51;
 
 -- 4. Insertar un movimiento de stock
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
@@ -335,6 +341,19 @@ ON DUPLICATE KEY UPDATE cantidad_disponible = 350;
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 1, 2, 'entrada', 350);
 
+INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
+VALUES (4, 1, 205)
+ON DUPLICATE KEY UPDATE cantidad_disponible = 205;
+
+INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
+VALUES (4, 1, 2, 'entrada', 205);
+
+INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
+VALUES (5, 1, 410)
+ON DUPLICATE KEY UPDATE cantidad_disponible = 410;
+
+INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
+VALUES (5, 1, 2, 'entrada', 410);
 -- 4. Insertar stock en la Sucursal 2 (Valor Óptimo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 2, 350)
@@ -434,3 +453,6 @@ INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,em
 );
 
 select * from proveedores;
+select * from stock;
+select * from producto;
+select * from sucursal;
