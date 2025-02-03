@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useStock } from "../../contexts/Stock/StockContext";
 import { format } from 'date-fns';
+import '../../styles/Components/Stock.css'
 
 const MainStock = () => {
   const { stock, loading, error, obtenerStockSucursal } = useStock();
@@ -70,61 +71,65 @@ const MainStock = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Stock de la Sucursal</h1>
-      <div className="container-filtros" style={{ display: "flex", gap: "2%" }}>
-        
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          style={{ width: "10%", padding: "10px", marginBottom: "20px" }}
-          value={busqueda} // Vinculamos el estado de búsqueda al valor del input
-          onChange={(e) => setBusqueda(e.target.value)} // Actualizamos el estado al escribir
-        />
-        {/* Filtro por línea (marca) */}
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={lineaSeleccionada}
-          onChange={(e) => setLineaSeleccionada(e.target.value)}
-        >
-          <option value="">Selecciona una Línea</option>
-          {marcasDisponibles.map((marca) => (
-            <option key={marca} value={marca}>
-              {marca}
-            </option>
-          ))}
-        </select>
-        {/* Filtro por capacidad */}
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={capacidadSeleccionada}
-          onChange={(e) => setCapacidadSeleccionada(e.target.value)}
-        >
-        <option value="">Selecciona una Capacidad</option>
-          {capacidadDisponibles.map((capacidad) => {
-          const displayCapacidad = capacidad >= 1000 ? `${capacidad / 1000} L` : `${capacidad} ml`;
-          return (
+    <div>
+      <h3 style={{ textAlign: "left", marginBottom: "20px" }}>Stock de la Sucursal</h3>
+      <div className="container-filtros">
+  <input
+    type="text"
+    placeholder="Buscar por nombre..."
+    className="filtro-input"
+    value={busqueda}
+    onChange={(e) => setBusqueda(e.target.value)}
+  />
+  
+  <select
+    className="filtro-input"
+    value={lineaSeleccionada}
+    onChange={(e) => setLineaSeleccionada(e.target.value)}
+  >
+    <option value="">Selecciona una Línea</option>
+    {marcasDisponibles.map((marca) => (
+      <option key={marca} value={marca}>
+        {marca}
+      </option>
+    ))}
+  </select>
+
+  <select
+    className="filtro-input"
+    value={capacidadSeleccionada}
+    onChange={(e) => setCapacidadSeleccionada(e.target.value)}
+  >
+    <option value="">Selecciona una Capacidad</option>
+    {capacidadDisponibles.map((capacidad) => {
+      const displayCapacidad =
+        capacidad >= 1000 ? `${capacidad / 1000} L` : `${capacidad} ml`;
+      return (
         <option key={capacidad} value={capacidad}>
           {displayCapacidad}
         </option>
       );
-      })}
-      </select>
-      {/* Filtro por estado de stock */}
-      <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={estadoStockSeleccionado}
-          onChange={(e) => setEstadoStockSeleccionado(e.target.value)}
-        >
-          <option value="">Selecciona un Estado de Stock</option>
-          {estadoDisponibles.map((estado_stock) => (
-            <option key={estado_stock} value={estado_stock}>
-              {estado_stock}
-            </option>
-          ))}
-        </select>
-        <button onClick={limpiarFiltros} style={{ padding: "10px", marginBottom: "20px" }}>Limpiar Filtros</button>
-      </div>
+    })}
+  </select>
+
+  <select
+    className="filtro-input"
+    value={estadoStockSeleccionado}
+    onChange={(e) => setEstadoStockSeleccionado(e.target.value)}
+  >
+    <option value="">Selecciona un Estado de Stock</option>
+    {estadoDisponibles.map((estado_stock) => (
+      <option key={estado_stock} value={estado_stock}>
+        {estado_stock}
+      </option>
+    ))}
+  </select>
+
+  <button className="filtro-btn" onClick={limpiarFiltros}>
+    Limpiar Filtros
+  </button>
+</div>
+
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ backgroundColor: "#f4f4f4" }}>

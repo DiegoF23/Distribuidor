@@ -1,0 +1,40 @@
+.container-filtros {
+    display: flex;
+    gap: 10px;
+    background-color: var(--color-secondary-100); /* Gris claro */
+    padding: 15px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .filtro-input {
+   font-size: small;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .filtro-input:focus {
+    border-color: var(--color-primary-400);
+    box-shadow: 0 0 5px rgba(0, 91, 189, 0.5);
+    outline: none;
+  }
+  
+  .filtro-btn {
+    padding: 8px 12px;
+    background-color: var(--color-primary-400);
+    color: var(--color-primary-100);
+    font-size: small;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .filtro-btn:hover {
+    background-color: #0056b3;
+  }
+  
