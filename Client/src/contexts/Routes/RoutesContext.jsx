@@ -7,6 +7,7 @@ import { CgProfile } from "react-icons/cg";
 import { FaHouse, FaGear, FaBoxesStacked } from "react-icons/fa6";
 import { FaUser, FaTruckLoading } from "react-icons/fa";
 import { PiBeerBottleFill, PiUserListBold } from "react-icons/pi";
+import { FaPallet } from "react-icons/fa";
 import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
 import Clientes from "../../pages/Clientes";
@@ -79,7 +80,7 @@ export const RoutesProvider = ({ children }) => {
     },
     {
       id: 9,
-      icon: <PiUserListBold />,
+      icon: <FaPallet />,
       path: "/Lotes",
       name: "Lotes",
       element: <Lotes />,
