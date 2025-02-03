@@ -1,5 +1,6 @@
-CREATE database if not exists  distribuidor;
-use distribuidor;
+-- Crear la base de datos (si no existe) y usarla
+CREATE DATABASE IF NOT EXISTS distribuidor;
+USE distribuidor;
 
 -- 🔴 Eliminar tablas si existen
 DROP TABLE IF EXISTS Movimiento_Stock;
@@ -13,6 +14,10 @@ DROP TABLE IF EXISTS Sucursal;
 DROP TABLE IF EXISTS Rol;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS proveedores;
+-- Nuevas tablas de socios, aportes y ganancias se eliminarán también si existen:
+DROP TABLE IF EXISTS Ganancias;
+DROP TABLE IF EXISTS Aportes;
+DROP TABLE IF EXISTS Socios;
 
 -- 🔴 Eliminar procedimientos y funciones si existen
 DROP PROCEDURE IF EXISTS CalcularUnidadesLote;
@@ -81,6 +86,7 @@ CREATE TABLE Stock (
 );
 ALTER TABLE Stock
 ADD CONSTRAINT unique_producto_sucursal UNIQUE (id_producto, id_sucursal);
+
 -- 🟢 Tabla de configuraciones de lote
 CREATE TABLE Lote_Configuracion (
     id_configuracion INT PRIMARY KEY AUTO_INCREMENT,
@@ -97,6 +103,7 @@ CREATE TABLE Lote (
     id_producto INT NOT NULL,
     id_configuracion INT NOT NULL,
     id_usuario INT NOT NULL,
+    id_sucursal INT NOT NULL DEFAULT 1,
     codigo_lote VARCHAR(50) UNIQUE NOT NULL,
     fecha_vencimiento DATE NOT NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -107,6 +114,7 @@ CREATE TABLE Lote (
     cantidad_fardos INT NOT NULL DEFAULT 0,
     cantidad_botellas INT NOT NULL DEFAULT 0,
     FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
+    FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal),
     FOREIGN KEY (id_configuracion) REFERENCES Lote_Configuracion(id_configuracion),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
@@ -127,7 +135,6 @@ CREATE TABLE Movimiento_Stock (
 
 -- 🟢 Procedimiento para calcular unidades en un lote
 DELIMITER //
-
 CREATE PROCEDURE CalcularUnidadesLote(
     IN p_id_configuracion INT,
     IN p_cantidad_pallets INT,
@@ -155,11 +162,9 @@ BEGIN
         (p_cantidad_fardos * v_botellas) +
         p_cantidad_botellas;
 END //
-
 DELIMITER ;
 
 DELIMITER //
-
 CREATE FUNCTION EstadoStock(p_id_producto INT, p_id_sucursal INT) 
 RETURNS VARCHAR(50) 
 DETERMINISTIC
@@ -169,15 +174,13 @@ BEGIN
     DECLARE stock_minimo INT;
     DECLARE stock_optimo INT;
 
-    -- Obtener el stock actual, stock mínimo y stock óptimo para el producto y sucursal específicos
     SELECT st.cantidad_disponible, p.stock_minimo, p.stock_optimo 
     INTO stock_actual, stock_minimo, stock_optimo 
     FROM Stock st
     JOIN Producto p ON st.id_producto = p.id_producto
     WHERE st.id_producto = p_id_producto AND st.id_sucursal = p_id_sucursal
-    LIMIT 1;  -- Asegurar que solo se devuelva una fila
+    LIMIT 1;
 
-    -- Determinar el estado del stock
     IF stock_actual < stock_minimo THEN
         SET estado = '🔴 Stock Bajo';
     ELSEIF stock_actual BETWEEN stock_minimo AND stock_optimo THEN
@@ -188,7 +191,6 @@ BEGIN
 
     RETURN estado;
 END //
-
 DELIMITER ;
 
 -- 🟢 Insertar roles
@@ -247,6 +249,7 @@ VALUES (1, 1, 2, 'entrada', @total_botellas);
 -- 🟢 Insertar un nuevo producto (Pepsi 2L)
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Pepsi', 'PepsiCo', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 2000, 150, 75);
+
 -- 🟢 Insertar un nuevo producto (Cepita 1.5L)
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Cepita 1.5L', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella', 1500, 500, 175);
@@ -257,115 +260,62 @@ VALUES ('Cepita 200ml', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'botella
 INSERT INTO Producto (nombre, marca, costo_S_Iva, costo_C_Iva, rentabilidad, precio, margen, tipo_envase, capacidad_ml, stock_optimo, stock_minimo)
 VALUES ('Fanta 500ml', 'Coca-Cola', 40.00, 48.40, 20.00, 58.08, 20.00, 'lata', 500, 400, 100);
 
--- Obtener el ID del nuevo producto
-SET @id_pepsi = LAST_INSERT_ID();
-
--- Insertar un lote de Pepsi (usuario: Carlos López, sucursal: Norte)
-SET @cantidad_pallets = 1;  -- Insertamos 1 pallet
-CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
-
-INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
-VALUES (@id_pepsi, @id_configuracion, 3, 'L20240310-B', '2025-04-10', 31000.00, @total_botellas, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas);
-
--- Actualizar el stock en la sucursal 2 (Sucursal Norte)
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (@id_pepsi, 2, @total_botellas)
-ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
-
--- Registrar el movimiento de stock en la sucursal 2
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (@id_pepsi, 2, 3, 'entrada', @total_botellas);
-
-
-
-
-
-
-
--- Definir la configuración del lote
-SET @id_configuracion = 1;  -- Configuración estándar: 1 pallet = 3 bases, 1 base = 4 fardos, 1 fardo = 8 botellas
-SET @cantidad_pallets = 4;  -- Insertamos 4 pallets
-SET @cantidad_bases = 0;    -- No se ingresan bases directamente
-SET @cantidad_fardos = 0;   -- No se ingresan fardos directamente
-SET @cantidad_botellas = 0; -- No se ingresan botellas sueltas
-
--- Calcular la cantidad total de botellas para 4 pallets
-CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
-
--- Insertar el nuevo lote de Coca-Cola con referencia al usuario y sucursal
-INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
-VALUES (
-    1,                          -- id_producto: Coca-Cola
-    @id_configuracion,          -- id_configuracion: Configuración estándar
-    2,                          -- id_usuario: Ana Gómez (Gerente)
-    'L20240315-C',              -- Código de lote único
-    '2025-05-20',               -- Fecha de vencimiento
-    124000.00,                  -- Costo del lote
-    @total_botellas,            -- Total de botellas calculado
-    @cantidad_pallets,          -- Cantidad de pallets
-    @cantidad_bases,            -- Cantidad de bases
-    @cantidad_fardos,           -- Cantidad de fardos
-    @cantidad_botellas          -- Cantidad de botellas
-);
-
--- Actualizar el stock en la sucursal 1 (Sucursal Central)
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (1, 1, @total_botellas)
-ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
-
--- Registrar el movimiento de stock en la sucursal 1
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (1, 1, 2, 'entrada', @total_botellas);
--- ----------------------- 
+-- Obtener el ID del producto Pepsi
 SET @id_pepsi = (SELECT id_producto FROM Producto WHERE nombre = 'Pepsi' LIMIT 1);
 
--- 3. Insertar stock en la Sucursal 1 (Stock Bajo)
+-- Insertar stock en la sucursal 1 para Pepsi (Stock Bajo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_pepsi, 1, 50)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 51;
 
--- 4. Insertar un movimiento de stock
+-- Registrar el movimiento de stock para Pepsi en la sucursal 1
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_pepsi, 1, 2, 'entrada', 50);
 
-
--- 1. Obtener el ID del producto Cepita 2L
+-- Obtener el ID del producto Cepita 1.5L
 SET @id_cepita = (SELECT id_producto FROM Producto WHERE nombre = 'Cepita 1.5L' LIMIT 1);
 
--- 2. Insertar stock en la Sucursal 1 (Valor Óptimo)
+-- Insertar stock en la sucursal 1 para Cepita 1.5L (Valor Intermedio: 350)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 1, 350)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 350;
 
--- 3. Insertar movimiento de stock en la Sucursal 1
+-- Registrar movimiento de stock para Cepita 1.5L en la sucursal 1
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 1, 2, 'entrada', 350);
 
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (4, 1, 205)
-ON DUPLICATE KEY UPDATE cantidad_disponible = 205;
-
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (4, 1, 2, 'entrada', 205);
-
-INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
-VALUES (5, 1, 410)
-ON DUPLICATE KEY UPDATE cantidad_disponible = 410;
-
-INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
-VALUES (5, 1, 2, 'entrada', 410);
 -- 4. Insertar stock en la Sucursal 2 (Valor Óptimo)
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 2, 350)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 310;
 
--- 5. Insertar movimiento de stock en la Sucursal 2
+-- Registrar movimiento de stock para Cepita 1.5L en la sucursal 2
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 2, 3, 'entrada', 350);
 
+-- ----------------------- 
+-- Definir la configuración del lote (para otro ejemplo)
+SET @id_configuracion = 1;  -- Configuración estándar
+SET @cantidad_pallets = 4;
+SET @cantidad_bases = 0;
+SET @cantidad_fardos = 0;
+SET @cantidad_botellas = 0;
 
-select * from stock;
+CALL CalcularUnidadesLote(@id_configuracion, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas, @total_botellas);
 
+INSERT INTO Lote (id_producto, id_configuracion, id_usuario, codigo_lote, fecha_vencimiento, costo_lote, total_unidades, cantidad_pallets, cantidad_bases, cantidad_fardos, cantidad_botellas)
+VALUES (
+    1, @id_configuracion, 2, 'L20240315-C', '2025-05-20', 124000.00, @total_botellas, @cantidad_pallets, @cantidad_bases, @cantidad_fardos, @cantidad_botellas
+);
+
+INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
+VALUES (1, 1, @total_botellas)
+ON DUPLICATE KEY UPDATE cantidad_disponible = cantidad_disponible + @total_botellas;
+
+INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
+VALUES (1, 1, 2, 'entrada', @total_botellas);
+
+-- ----------------------- 
 
 -- 📌 Consultas predefinidas
 
@@ -409,11 +359,7 @@ JOIN Producto p ON ms.id_producto = p.id_producto
 JOIN Sucursal s ON ms.id_sucursal = s.id_sucursal
 JOIN Usuario u ON ms.id_usuario = u.id_usuario;
 
-
-
-select * from producto;
-
-
+SELECT * FROM producto;
 
 SELECT 
          p.nombre AS producto,
@@ -422,27 +368,26 @@ SELECT
          p.stock_optimo,
          p.stock_minimo,
          EstadoStock(p.id_producto, s.id_sucursal) AS estado_stock
-       FROM Stock st
-       JOIN Producto p ON st.id_producto = p.id_producto
-       JOIN Sucursal s ON st.id_sucursal = s.id_sucursal
-       WHERE st.id_sucursal = 1;
-
+FROM Stock st
+JOIN Producto p ON st.id_producto = p.id_producto
+JOIN Sucursal s ON st.id_sucursal = s.id_sucursal
+WHERE st.id_sucursal = 1;
 
 CREATE TABLE proveedores (
-id_proveedor INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-apellido_proveedor VARCHAR (50),
-nombre_proveedor VARCHAR (50),
-codigo_proveedor VARCHAR (50),
-email_proveedor VARCHAR (50),
-numero_proveedor VARCHAR (50)
+    id_proveedor INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    apellido_proveedor VARCHAR(50),
+    nombre_proveedor VARCHAR(50),
+    codigo_proveedor VARCHAR(50),
+    email_proveedor VARCHAR(50),
+    numero_proveedor VARCHAR(50)
 );
 
 CREATE TABLE clientes (
-id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-apellido_cliente VARCHAR (50),
-nombre_cliente VARCHAR (50),
-mail_cliente VARCHAR (50),
-numero_cliente VARCHAR (50)
+    id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    apellido_cliente VARCHAR(50),
+    nombre_cliente VARCHAR(50),
+    mail_cliente VARCHAR(50),
+    numero_cliente VARCHAR(50)
 );
 
 INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,email_proveedor,numero_proveedor) values (
@@ -453,6 +398,3 @@ INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,em
 );
 
 select * from proveedores;
-select * from stock;
-select * from producto;
-select * from sucursal;
