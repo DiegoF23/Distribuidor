@@ -4,13 +4,14 @@ import Productos from "../../pages/Productos";
 import { ProductosProvider } from "../Productos/ProductosContext";
 import { CgProfile } from "react-icons/cg";
 import { FaHouse, FaGear, FaBoxesStacked } from "react-icons/fa6";
-import { FaUser, FaTruckLoading } from "react-icons/fa";
+import { FaUser, FaTruckLoading,FaHandshake } from "react-icons/fa";
 import { PiBeerBottleFill, PiUserListBold } from "react-icons/pi";
 import { FaPallet } from "react-icons/fa";
 import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
 import Clientes from "../../pages/Clientes";
 import Lotes from "../../pages/Lotes";
+import Socios from "../../pages/Socios";
 // Rutas definidas en el contexto
 const RoutesContext = createContext();
 
@@ -65,7 +66,7 @@ export const RoutesProvider = ({ children }) => {
     {
       id: 7,
       icon: <FaTruckLoading />,
-      path: "/Porveedores",
+      path: "/Proveedores",
       name: "Proveedores",
       element: <Proveedores />,
     },
@@ -83,6 +84,15 @@ export const RoutesProvider = ({ children }) => {
       name: "Lotes",
       element: <Lotes />,
     },
+    {
+      id: 10,
+      icon: <FaHandshake />,
+      path: "/Socios",
+      name: "Socios",
+      element: <Socios />,
+    },
+
+    
   ];
 
   return (
