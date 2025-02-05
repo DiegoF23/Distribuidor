@@ -100,9 +100,15 @@ const MainProveedores = ({}) => {
                   proveedor={proveedor} 
                   API_URL={API_URL} 
                   onDelete={handleDelete} 
+                  disabled={proveedorEdit !== null} // Desactiva si está en edición
                 />
-                <button onClick={() => handleEdit(proveedor)}>Editar</button>
-                <button onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)}>
+                <button onClick={() => handleEdit(proveedor)} disabled={proveedorEdit !== null}>
+                  Editar
+                </button>
+                <button 
+                  onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)} 
+                  disabled={proveedorEdit !== null} // Desactiva si está en edición
+                >
                   <FaWhatsapp /> WhatsApp
                 </button>
               </td>

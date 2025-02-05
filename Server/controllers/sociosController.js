@@ -17,7 +17,11 @@ const getConnection = async () => {
 exports.getSocios = async (req, res) => {
     try {
         const connection = await getConnection();
-        const [rows] = await connection.execute("SELECT * FROM Socios");
+        const [rows] = await connection.execute(`
+            SELECT s.*, suc.nombre AS nombre_sucursal
+            FROM Socios s
+            JOIN Sucursal suc ON s.id_sucursal = suc.id_sucursal
+        `);
         connection.release();
         res.status(200).json(rows);
     } catch (error) {

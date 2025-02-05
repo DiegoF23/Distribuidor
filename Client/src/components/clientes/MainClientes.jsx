@@ -3,12 +3,13 @@ import axios from 'axios';
 import { FaWhatsapp } from 'react-icons/fa';
 import ClientesDelete from './ClientesDelete';
 import ClientesCreate from './ClientesCreate';
-import {useApiContext} from '../../contexts/api/ApiContext'
+import { useApiContext } from '../../contexts/api/ApiContext';
 
 const MainClientes = ({}) => {
   const { API_URL } = useApiContext();
   const [clientes, setClientes] = useState([]);
   const [clienteEdit, setClienteEdit] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Llamada a la API para obtener clientes
   const getClientes = async () => {
@@ -29,16 +30,13 @@ const MainClientes = ({}) => {
     getClientes(); // Llamada inicial para obtener los clientes
   }, [API_URL]);
 
-  // Función que maneja la eliminación de un cliente
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_URL}/clientes/${id}`);
-      // Eliminar de la lista sin recargar
       setClientes((prevClientes) =>
         prevClientes.filter((cliente) => cliente.id_cliente !== id)
       );
-      alert("Se eliminó el cliente correctamente")
-      console.log('Cliente eliminado correctamente');
+      alert('Se eliminó el cliente correctamente');
     } catch (error) {
       if (error.response?.status === 404) {
         console.warn(`El cliente con ID ${id} ya no existe.`);
@@ -61,12 +59,14 @@ const MainClientes = ({}) => {
       )
     );
     setClienteEdit(null);
+    setIsEditing(false);
     alert('Cliente actualizado correctamente');
     getClientes();
   };
 
   const handleEdit = (cliente) => {
     setClienteEdit(cliente);
+    setIsEditing(true);
   };
 
   const handleWhatsAppClick = (numero) => {
@@ -76,38 +76,45 @@ const MainClientes = ({}) => {
   return (
     <div>
       <h1>Lista de Clientes</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Número de Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map((cliente) => (
-            <tr key={cliente.id_cliente}>
-              <td>{cliente.nombre_cliente}</td>
-              <td>{cliente.apellido_cliente}</td>
-              <td>{cliente.mail_cliente}</td>
-              <td>{cliente.numero_cliente}</td>
-              <td>
-                <ClientesDelete 
-                  cliente={cliente} 
-                  API_URL={API_URL} 
-                  onDelete={handleDelete} 
-                />
-                <button onClick={() => handleEdit(cliente)}>Editar</button>
-                <button onClick={() => handleWhatsAppClick(cliente.numero_cliente)}>
-                  <FaWhatsapp /> WhatsApp
-                </button>
-              </td>
+      {clientes.length === 0 ? (
+        <p style={{ fontStyle: 'italic', color: '#888' }}>No hay clientes disponibles.</p> // Mensaje cuando no hay clientes
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Número de Teléfono</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {clientes.map((cliente) => (
+              <tr key={cliente.id_cliente}>
+                <td>{cliente.nombre_cliente}</td>
+                <td>{cliente.apellido_cliente}</td>
+                <td>{cliente.mail_cliente}</td>
+                <td>{cliente.numero_cliente}</td>
+                <td>
+                  <ClientesDelete 
+                    cliente={cliente} 
+                    API_URL={API_URL} 
+                    onDelete={handleDelete} 
+                    disabled={isEditing}
+                  />
+                  <button onClick={() => handleEdit(cliente)} disabled={isEditing}>
+                    Editar
+                  </button>
+                  <button onClick={() => handleWhatsAppClick(cliente.numero_cliente)} disabled={isEditing}>
+                    <FaWhatsapp /> WhatsApp
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       <ClientesCreate
         onAdd={handleAdd}

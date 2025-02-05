@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {useApiContext} from '../../contexts/api/ApiContext'
+import { useApiContext } from '../../contexts/api/ApiContext';
 import axios from 'axios';
 
-const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit}) => {
+const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit }) => {
   const { API_URL } = useApiContext();
   const [nuevoProveedor, setNuevoProveedor] = useState({
     nombre: '',
@@ -27,9 +27,14 @@ const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit}) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Validación específica para el teléfono
-    if (name === 'telefono') {
-      if (!/^\d*$/.test(value)) return; // Solo números
+    // Validación para campos de nombre y apellido: solo letras
+    if ((name === 'nombre' || name === 'apellido') && /[^a-zA-Z\s]/.test(value)) {
+      return; // Si el valor contiene caracteres no permitidos, no actualiza el estado
+    }
+
+    // Validación para el teléfono: solo números
+    if (name === 'telefono' && !/^\d*$/.test(value)) {
+      return; // Solo números para el teléfono
     }
 
     setNuevoProveedor((prev) => ({ ...prev, [name]: value }));

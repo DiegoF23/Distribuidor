@@ -25,9 +25,14 @@ const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // Validación específica para el nombre y apellido (solo letras)
+    if ((name === 'nombre_cliente' || name === 'apellido_cliente') && !/^[a-zA-Z\s]*$/.test(value)) {
+      return; // Solo permite letras y espacios
+    }
+
     // Validación específica para el teléfono (solo números)
-    if (name === 'numero_cliente') {
-      if (!/^\d*$/.test(value)) return; // Solo números
+    if (name === 'numero_cliente' && !/^\d*$/.test(value)) {
+      return; // Solo números
     }
 
     setNuevoCliente((prev) => ({ ...prev, [name]: value }));

@@ -80,9 +80,9 @@ const MainSocios = () => {
         <tbody>
           {socios.map((socio) => (
             <tr key={socio.id_socio}>
-              <td>{socio.id_sucursal}</td>
+              <td>{socio.nombre_sucursal}</td>
               <td>{socio.nombre}</td>
-              <td>{socio.fecha_maxima_participacion?.split("T")[0] || "Sin fecha"}</td>
+              <td>{new Date(socio.fecha_maxima_participacion).toLocaleDateString("es-ES") || "Sin fecha"}</td>
               <td>{socio.direccion}</td>
               <td>{socio.telefono}</td>
               <td>{socio.mail}</td>
