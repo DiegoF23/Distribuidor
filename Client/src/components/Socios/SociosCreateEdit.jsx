@@ -15,6 +15,27 @@ const SociosCreateEdit = ({ onAdd, onEdit, onCancel, socio }) => {
     telefono: "",
   });
 
+  // Nuevo estado para almacenar las sucursales
+  const [sucursales, setSucursales] = useState([]);
+
+  // Llamada a la API para obtener las sucursales disponibles
+  useEffect(() => {
+    const getSucursales = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/sucursales`);
+        if (Array.isArray(response.data)) {
+          setSucursales(response.data);
+        } else {
+          console.error("La respuesta de sucursales no es un arreglo:", response.data);
+        }
+      } catch (error) {
+        console.error("Error al obtener sucursales:", error);
+      }
+    };
+    getSucursales();
+  }, [API_URL]);
+
+  // Cuando se selecciona un socio para editar, se llenan los campos del formulario
   useEffect(() => {
     if (socio) {
       setIdSucursal(socio.id_sucursal || "");
@@ -97,12 +118,19 @@ const SociosCreateEdit = ({ onAdd, onEdit, onCancel, socio }) => {
       <h2>{socio ? "Editar Socio" : "Agregar Socio"}</h2>
       <form onSubmit={handleSubmit}>
         <label>ID Sucursal:</label>
-        <input
-          type="number"
+        {/* Aquí se reemplaza el input por un select */}
+        <select
           value={idSucursal}
           onChange={(e) => setIdSucursal(e.target.value)}
           required
-        />
+        >
+          <option value="">Seleccione una sucursal</option>
+          {sucursales.map((sucursal) => (
+            <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+              {sucursal.nombre}
+            </option>
+          ))}
+        </select>
 
         <label>Nombre:</label>
         <input

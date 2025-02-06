@@ -8,6 +8,7 @@ const lotesRoutes = require("./Routes/lotesRoutes");
 const productosRoutes = require("./Routes/productosRoutes");
 const stockRoutes = require("./Routes/stockRoutes");
 const sociosRoutes = require("./Routes/sociosRoutes");
+const sucursalesRoutes = require("./Routes/sucursalesRoutes");
 const loteConfiguracionesRoutes = require("./routes/loteConfiguracionesRoutes");
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api", stockRoutes);
 app.use("/api", lotesRoutes);
 app.use("/api", sociosRoutes);
 app.use("/api", loteConfiguracionesRoutes);
+app.use("/api", sucursalesRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
