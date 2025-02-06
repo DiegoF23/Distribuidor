@@ -3,9 +3,9 @@ import axios from 'axios';
 import { FaWhatsapp } from 'react-icons/fa';
 import ProveedoresDelete from './ProveedoresDelete';
 import ProveedoresCreate from './ProveedoresCreate';
-import {useApiContext} from '../../contexts/api/ApiContext'
+import { useApiContext } from '../../contexts/api/ApiContext';
 
-const MainProveedores = ({}) => {
+const MainProveedores = () => {
   const { API_URL } = useApiContext();
   const [proveedores, setProveedores] = useState([]);
   const [proveedorEdit, setProveedorEdit] = useState(null);
@@ -37,7 +37,7 @@ const MainProveedores = ({}) => {
       setProveedores((prevProveedores) =>
         prevProveedores.filter((proveedor) => proveedor.id_proveedor !== id)
       );
-      alert("Se eliminó el proveedor correctamente")
+      alert("Se eliminó el proveedor correctamente");
       console.log('Proveedor eliminado correctamente');
     } catch (error) {
       if (error.response?.status === 404) {
@@ -69,6 +69,11 @@ const MainProveedores = ({}) => {
     setProveedorEdit(proveedor);
   };
 
+  // Función para cancelar la edición
+  const handleCancelEdit = () => {
+    setProveedorEdit(null);
+  };
+
   const handleWhatsAppClick = (numero) => {
     window.open(`https://wa.me/${numero}`, '_blank');
   };
@@ -76,52 +81,58 @@ const MainProveedores = ({}) => {
   return (
     <div>
       <h1>Lista de Proveedores</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Código</th>
-            <th>Email</th>
-            <th>Número de Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {proveedores.map((proveedor) => (
-            <tr key={proveedor.id_proveedor}>
-              <td>{proveedor.nombre_proveedor}</td>
-              <td>{proveedor.apellido_proveedor}</td>
-              <td>{proveedor.codigo_proveedor}</td>
-              <td>{proveedor.email_proveedor}</td>
-              <td>{proveedor.numero_proveedor}</td>
-              <td>
-                <ProveedoresDelete 
-                  proveedor={proveedor} 
-                  API_URL={API_URL} 
-                  onDelete={handleDelete} 
-                  disabled={proveedorEdit !== null} // Desactiva si está en edición
-                />
-                <button onClick={() => handleEdit(proveedor)} disabled={proveedorEdit !== null}>
-                  Editar
-                </button>
-                <button 
-                  onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)} 
-                  disabled={proveedorEdit !== null} // Desactiva si está en edición
-                >
-                  <FaWhatsapp /> WhatsApp
-                </button>
-              </td>
+      {proveedores.length === 0 ? (
+        <p style={{ fontStyle: 'italic', color: '#888' }}>No hay proveedores disponibles.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Código</th>
+              <th>Email</th>
+              <th>Número de Teléfono</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {proveedores.map((proveedor) => (
+              <tr key={proveedor.id_proveedor || proveedor.email_proveedor}>
+                <td>{proveedor.nombre_proveedor}</td>
+                <td>{proveedor.apellido_proveedor}</td>
+                <td>{proveedor.codigo_proveedor}</td>
+                <td>{proveedor.email_proveedor}</td>
+                <td>{proveedor.numero_proveedor}</td>
+                <td>
+                  <ProveedoresDelete 
+                    proveedor={proveedor} 
+                    API_URL={API_URL} 
+                    onDelete={handleDelete} 
+                    disabled={proveedorEdit !== null} 
+                  />
+                  <button onClick={() => handleEdit(proveedor)} disabled={proveedorEdit !== null}>
+                    Editar
+                  </button>
+                  <button 
+                    onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)} 
+                    disabled={proveedorEdit !== null}
+                  >
+                    <FaWhatsapp /> WhatsApp
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
+      {/* Se pasa la función handleCancelEdit para que el botón "Cancelar" en ProveedoresCreate funcione */}
       <ProveedoresCreate
         onAdd={handleAdd}
         onEdit={handleUpdate}
         proveedor={proveedorEdit}
         API_URL={API_URL}
+        onCancel={handleCancelEdit}
       />
     </div>
   );

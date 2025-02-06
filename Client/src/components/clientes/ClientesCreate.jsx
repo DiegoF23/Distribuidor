@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useApiContext } from '../../contexts/api/ApiContext';
 
-const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
+const ClientesCreate = ({ onAdd, cliente = null, onEdit, onCancel }) => {
   const { API_URL } = useApiContext();
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre_cliente: '',
@@ -19,13 +19,21 @@ const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
         mail_cliente: cliente.mail_cliente,
         numero_cliente: cliente.numero_cliente,
       });
+    } else {
+      // Limpia el formulario si no hay cliente
+      setNuevoCliente({
+        nombre_cliente: '',
+        apellido_cliente: '',
+        mail_cliente: '',
+        numero_cliente: '',
+      });
     }
   }, [cliente]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Validación específica para el nombre y apellido (solo letras)
+    // Validación específica para el nombre y apellido (solo letras y espacios)
     if ((name === 'nombre_cliente' || name === 'apellido_cliente') && !/^[a-zA-Z\s]*$/.test(value)) {
       return; // Solo permite letras y espacios
     }
@@ -61,7 +69,18 @@ const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
       console.error('Error al guardar el cliente:', error);
     }
 
+    // Limpia el formulario
     setNuevoCliente({ nombre_cliente: '', apellido_cliente: '', mail_cliente: '', numero_cliente: '' });
+  };
+
+  // Función para cancelar la edición
+  const handleCancel = () => {
+    // Limpia el formulario
+    setNuevoCliente({ nombre_cliente: '', apellido_cliente: '', mail_cliente: '', numero_cliente: '' });
+    // Llama a la función onCancel para que el componente padre deseleccione el cliente
+    if (typeof onCancel === 'function') {
+      onCancel();
+    }
   };
 
   return (
@@ -98,6 +117,11 @@ const ClientesCreate = ({ onAdd, cliente = null, onEdit }) => {
         required
       />
       <button type="submit">{cliente ? 'Guardar Cambios' : 'Agregar'}</button>
+      {cliente && (
+        <button type="button" onClick={handleCancel}>
+          Cancelar
+        </button>
+      )}
     </form>
   );
 };

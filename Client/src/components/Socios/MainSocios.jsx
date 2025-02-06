@@ -49,7 +49,9 @@ const MainSocios = () => {
 
   const handleUpdate = (socioActualizado) => {
     setSocios((prevSocios) =>
-      prevSocios.map((socio) => (socio.id_socio === socioActualizado.id_socio ? socioActualizado : socio))
+      prevSocios.map((socio) =>
+        socio.id_socio === socioActualizado.id_socio ? socioActualizado : socio
+      )
     );
     setSocioEdit(null);
     setIsEditing(false);
@@ -62,44 +64,65 @@ const MainSocios = () => {
     setIsEditing(true);
   };
 
+  // Función para cancelar la edición: limpia el socio en edición y desactiva el modo edición.
+  const handleCancelEdit = () => {
+    setSocioEdit(null);
+    setIsEditing(false);
+  };
+
   return (
     <div>
       <h1>Lista de Socios</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Sucursal</th>
-            <th>Nombre</th>
-            <th>Fecha Máxima Participación</th>
-            <th>Dirección</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {socios.map((socio) => (
-            <tr key={socio.id_socio}>
-              <td>{socio.nombre_sucursal}</td>
-              <td>{socio.nombre}</td>
-              <td>{new Date(socio.fecha_maxima_participacion).toLocaleDateString("es-ES") || "Sin fecha"}</td>
-              <td>{socio.direccion}</td>
-              <td>{socio.telefono}</td>
-              <td>{socio.mail}</td>
-              <td>
-                <SociosDelete
-                  socio={socio}
-                  onDelete={handleDelete}
-                  disabled={isEditing}
-                />
-                <button onClick={() => handleEdit(socio)} disabled={isEditing}>Editar</button>
-              </td>
+      {socios.length === 0 ? (
+        <p style={{ fontStyle: "italic", color: "#888" }}>No hay socios disponibles</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Sucursal</th>
+              <th>Nombre</th>
+              <th>Fecha Máxima Participación</th>
+              <th>Dirección</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {socios.map((socio) => (
+              <tr key={socio.id_socio}>
+                <td>{socio.nombre_sucursal}</td>
+                <td>{socio.nombre}</td>
+                <td>
+                  {new Date(socio.fecha_maxima_participacion).toLocaleDateString("es-ES") ||
+                    "Sin fecha"}
+                </td>
+                <td>{socio.direccion}</td>
+                <td>{socio.telefono}</td>
+                <td>{socio.mail}</td>
+                <td>
+                  <SociosDelete
+                    socio={socio}
+                    onDelete={handleDelete}
+                    disabled={isEditing}
+                  />
+                  <button onClick={() => handleEdit(socio)} disabled={isEditing}>
+                    Editar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      <SociosCreateEdit onAdd={handleAdd} onEdit={handleUpdate} socio={socioEdit} />
+      {/* Se pasa la función handleCancelEdit mediante onCancel para que el botón cancelar funcione */}
+      <SociosCreateEdit
+        onAdd={handleAdd}
+        onEdit={handleUpdate}
+        socio={socioEdit}
+        onCancel={handleCancelEdit}
+      />
     </div>
   );
 };

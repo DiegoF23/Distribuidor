@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useApiContext } from "../../contexts/api/ApiContext";
 
-const SociosCreateEdit = ({ onAdd, onEdit, socio }) => {
+const SociosCreateEdit = ({ onAdd, onEdit, onCancel, socio }) => {
   const { API_URL } = useApiContext();
   const [idSucursal, setIdSucursal] = useState("");
   const [nombre, setNombre] = useState("");
@@ -19,7 +19,9 @@ const SociosCreateEdit = ({ onAdd, onEdit, socio }) => {
     if (socio) {
       setIdSucursal(socio.id_sucursal || "");
       setNombre(socio.nombre || "");
-      setFechaMaximaParticipacion(socio.fecha_maxima_participacion?.split("T")[0] || "");
+      setFechaMaximaParticipacion(
+        socio.fecha_maxima_participacion?.split("T")[0] || ""
+      );
       setDireccion(socio.direccion || "");
       setTelefono(socio.telefono || "");
       setMail(socio.mail || "");
@@ -42,12 +44,12 @@ const SociosCreateEdit = ({ onAdd, onEdit, socio }) => {
   };
 
   const handleNombreChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
     setNombre(value);
   };
 
   const handleTelefonoChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
+    const value = e.target.value.replace(/[^0-9]/g, "");
     setTelefono(value);
   };
 
@@ -80,6 +82,13 @@ const SociosCreateEdit = ({ onAdd, onEdit, socio }) => {
     } catch (error) {
       console.error("Error al guardar el socio:", error);
       alert("Ocurrió un error al guardar el socio.");
+    }
+  };
+
+  const handleCancel = () => {
+    limpiarFormulario();
+    if (typeof onCancel === "function") {
+      onCancel();
     }
   };
 
@@ -132,6 +141,11 @@ const SociosCreateEdit = ({ onAdd, onEdit, socio }) => {
         />
 
         <button type="submit">{socio ? "Actualizar" : "Agregar"}</button>
+        {socio && (
+          <button type="button" onClick={handleCancel}>
+            Cancelar
+          </button>
+        )}
       </form>
     </div>
   );

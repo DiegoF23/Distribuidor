@@ -5,7 +5,7 @@ import ClientesDelete from './ClientesDelete';
 import ClientesCreate from './ClientesCreate';
 import { useApiContext } from '../../contexts/api/ApiContext';
 
-const MainClientes = ({}) => {
+const MainClientes = () => {
   const { API_URL } = useApiContext();
   const [clientes, setClientes] = useState([]);
   const [clienteEdit, setClienteEdit] = useState(null);
@@ -69,6 +69,12 @@ const MainClientes = ({}) => {
     setIsEditing(true);
   };
 
+  // Función para cancelar la edición
+  const handleCancelEdit = () => {
+    setClienteEdit(null);
+    setIsEditing(false);
+  };
+
   const handleWhatsAppClick = (numero) => {
     window.open(`https://wa.me/${numero}`, '_blank');
   };
@@ -77,7 +83,7 @@ const MainClientes = ({}) => {
     <div>
       <h1>Lista de Clientes</h1>
       {clientes.length === 0 ? (
-        <p style={{ fontStyle: 'italic', color: '#888' }}>No hay clientes disponibles.</p> // Mensaje cuando no hay clientes
+        <p style={{ fontStyle: 'italic', color: '#888' }}>No hay clientes disponibles.</p>
       ) : (
         <table>
           <thead>
@@ -121,6 +127,7 @@ const MainClientes = ({}) => {
         onEdit={handleUpdate}
         cliente={clienteEdit}
         API_URL={API_URL}
+        onCancel={handleCancelEdit}
       />
     </div>
   );
