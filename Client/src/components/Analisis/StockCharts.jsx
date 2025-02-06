@@ -29,11 +29,17 @@ const StockCharts = ({ stock }) => {
     <div>
       <div>
         <h2>Porcentaje de Stock por Producto</h2>
-        <Pie data={dataPie} key="pie-chart" redraw />
+        <div style={{ width: "30%" }}>
+           <Pie data={dataPie} key="pie-chart" redraw />
+        </div>
+       
       </div>
       <div>
         <h2>Comparación de Stock</h2>
-        <Bar data={dataBar} key="bar-chart" redraw />
+        <div style={{ width: "30%" }}>
+           <Bar data={dataBar} key="bar-chart" redraw />
+        </div>
+       
       </div>
     </div>
   );

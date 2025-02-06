@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {useApiContext} from '../../contexts/api/ApiContext'
 import axios from 'axios';
+import '../../styles/Components/ProveedoresCreate.css'
 
 const ProveedoresCreate = ({ onAdd, proveedor = null, onEdit}) => {
   const { API_URL } = useApiContext();

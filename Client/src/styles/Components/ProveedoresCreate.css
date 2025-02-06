@@ -1,0 +1,44 @@
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaciado entre elementos */
+  }
+  
+  input {
+    width: 90%;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: var(--color-primary-400); /* Cambiar color del borde al enfocarse */
+    box-shadow: 0 0 5px var(--color-primary-400); /* Sutil brillo verde */
+    background-color: #fff; /* Fondo blanco al enfocar */
+  }
+  
+  button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color:var(--color-primary-400); /* Verde para el botón */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color:var(--color-primary-400); /* Cambiar tono al pasar el mouse */
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  

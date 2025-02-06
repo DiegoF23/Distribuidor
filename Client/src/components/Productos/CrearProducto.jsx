@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useApiContext } from "../../contexts/api/ApiContext";
-import '../../styles/Default/modal.css'
+import "../../styles/Default/modal.css";
 
-const CrearProducto = ({ onProductoCreado}) => {
+const CrearProducto = ({ onProductoCreado }) => {
   const { API_URL } = useApiContext();
 
   // Estado para los campos del formulario
@@ -51,134 +51,113 @@ const CrearProducto = ({ onProductoCreado}) => {
       setCapacidadMl(0);
       setStockOptimo(0);
       setStockMinimo(0);
-      
+
       // Notificar al componente padre
       if (onProductoCreado) onProductoCreado();
-      
-      // Cerrar el modal
-      onClose();
     } catch (error) {
       console.error("Error al crear el producto:", error);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h2>Crear Nuevo Producto</h2>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              label="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Marca"
-              value={marca}
-              onChange={(e) => setMarca(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Costo sin IVA"
-              type="number"
-              value={costoSIva}
-              onChange={(e) => setCostoSIva(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Costo con IVA"
-              type="number"
-              value={costoCIva}
-              onChange={(e) => setCostoCIva(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Rentabilidad (%)"
-              type="number"
-              value={rentabilidad}
-              onChange={(e) => setRentabilidad(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Precio"
-              type="number"
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Margen (%)"
-              type="number"
-              value={margen}
-              onChange={(e) => setMargen(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <Select
-              value={tipoEnvase}
-              onChange={(e) => setTipoEnvase(e.target.value)}
-              fullWidth
-              margin="dense"
-            >
-              <MenuItem value="botella">Botella</MenuItem>
-              <MenuItem value="lata">Lata</MenuItem>
-              <MenuItem value="envase_retornable">Envase Retornable</MenuItem>
-              <MenuItem value="otro">Otro</MenuItem>
-            </Select>
-            <TextField
-              label="Capacidad (ml)"
-              type="number"
-              value={capacidadMl}
-              onChange={(e) => setCapacidadMl(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Stock Óptimo"
-              type="number"
-              value={stockOptimo}
-              onChange={(e) => setStockOptimo(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <TextField
-              label="Stock Mínimo"
-              type="number"
-              value={stockMinimo}
-              onChange={(e) => setStockMinimo(e.target.value)}
-              fullWidth
-              required
-              margin="dense"
-            />
-            <div style={{ marginTop: 20, textAlign: "right" }}>
-              <Button onClick={onClose} color="secondary">
-                Cancelar
-              </Button>
-              <Button type="submit" variant="contained" color="primary" style={{ marginLeft: 10 }}>
-                Crear Producto
-              </Button>
-            </div>
-          </form>
+    <div className="crear-producto-container">
+      <h2>Crear Nuevo Producto</h2>
+      <form onSubmit={handleSubmit} className="crear-producto-form">
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Marca"
+          value={marca}
+          onChange={(e) => setMarca(e.target.value)}
+          required
+        />
+        <p>Costo sin Iva</p>
+        <input
+          type="number"
+          placeholder="Costo sin IVA"
+          value={costoSIva}
+          onChange={(e) => setCostoSIva(e.target.value)}
+          required
+        />
+        <p>Costo con Iva</p>
+        <input
+          type="number"
+          placeholder="Costo con IVA"
+          value={costoCIva}
+          onChange={(e) => setCostoCIva(e.target.value)}
+          required
+        />
+        <p>Rentabilidad</p>
+        <input
+          type="number"
+          placeholder="Rentabilidad (%)"
+          value={rentabilidad}
+          onChange={(e) => setRentabilidad(e.target.value)}
+          required
+        />
+        <p>Precio</p>
+        <input
+          type="number"
+          placeholder="Precio"
+          value={precio}
+          onChange={(e) => setPrecio(e.target.value)}
+          required
+        />
+        <p>Margen de ganancia</p>
+        <input
+          type="number"
+          placeholder="Margen (%)"
+          value={margen}
+          onChange={(e) => setMargen(e.target.value)}
+          required
+        />
+        <p>Tipo de envase</p>
+        <select
+          value={tipoEnvase}
+          onChange={(e) => setTipoEnvase(e.target.value)}
+          required
+        >
+          <option value="botella">Botella</option>
+          <option value="lata">Lata</option>
+          <option value="envase_retornable">Envase Retornable</option>
+          <option value="otro">Otro</option>
+        </select>
+        <p>Capacidad (ml)</p>
+        <input
+          type="number"
+          placeholder="Capacidad (ml)"
+          value={capacidadMl}
+          onChange={(e) => setCapacidadMl(e.target.value)}
+          required
+        />
+        <p>Stock Óptimo</p>
+        <input
+          type="number"
+          placeholder="Stock Óptimo"
+          value={stockOptimo}
+          onChange={(e) => setStockOptimo(e.target.value)}
+          required
+        />
+        <p>Stock Mínimo</p>1
+        <input
+          type="number"
+          placeholder="Stock Mínimo"
+          value={stockMinimo}
+          onChange={(e) => setStockMinimo(e.target.value)}
+          required
+        />
+        <div className="crear-producto-actions">
+          <button type="button" onClick={() => console.log("Cancelar")}>Cancelar</button>
+          <button type="submit">Crear Producto</button>
         </div>
-      </div>
-    </Modal>
+      </form>
+    </div>
   );
 };
 

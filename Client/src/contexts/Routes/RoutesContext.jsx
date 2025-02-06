@@ -7,6 +7,7 @@ import { CgProfile } from "react-icons/cg";
 import { FaHouse, FaGear, FaBoxesStacked } from "react-icons/fa6";
 import { FaUser, FaTruckLoading } from "react-icons/fa";
 import { PiBeerBottleFill, PiUserListBold } from "react-icons/pi";
+import { IoAnalyticsSharp } from "react-icons/io5";
 import { FaPallet } from "react-icons/fa";
 import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
@@ -87,6 +88,7 @@ export const RoutesProvider = ({ children }) => {
     },
     {
       id: 10,
+      icon: <IoAnalyticsSharp />,
       path: "/analisis",
       name: "Analisis",
       element: <Analisis />,

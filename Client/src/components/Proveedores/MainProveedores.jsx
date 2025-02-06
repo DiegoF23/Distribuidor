@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaPlus, FaEdit } from 'react-icons/fa';
 import ProveedoresDelete from './ProveedoresDelete';
 import ProveedoresCreate from './ProveedoresCreate';
-import {useApiContext} from '../../contexts/api/ApiContext'
+import { useApiContext } from '../../contexts/api/ApiContext';
 
-const MainProveedores = ({}) => {
+const MainProveedores = () => {
   const { API_URL } = useApiContext();
   const [proveedores, setProveedores] = useState([]);
   const [proveedorEdit, setProveedorEdit] = useState(null);
+  const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
 
-  // Llamada a la API para obtener proveedores
   const getProveedores = async () => {
     try {
       const response = await axios.get(`${API_URL}/proveedores`);
@@ -26,47 +26,45 @@ const MainProveedores = ({}) => {
   };
 
   useEffect(() => {
-    getProveedores(); // Llamada inicial para obtener los proveedores
+    getProveedores();
   }, [API_URL]);
 
-  // Función que maneja la eliminación de un proveedor
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_URL}/proveedores/${id}`);
-      // Eliminar de la lista sin recargar
       setProveedores((prevProveedores) =>
         prevProveedores.filter((proveedor) => proveedor.id_proveedor !== id)
       );
-      alert("Se eliminó el proveedor correctamente")
-      console.log('Proveedor eliminado correctamente');
+      alert('Se eliminó el proveedor correctamente');
     } catch (error) {
-      if (error.response?.status === 404) {
-        console.warn(`El proveedor con ID ${id} ya no existe.`);
-      } else {
-        console.error('Error al eliminar el proveedor:', error);
-      }
+      console.error('Error al eliminar el proveedor:', error);
     }
   };
 
   const handleAdd = (nuevoProveedor) => {
     setProveedores((prevProveedores) => [...prevProveedores, nuevoProveedor]);
     alert('Proveedor agregado correctamente');
-    getProveedores(); // Vuelve a cargar la lista después de agregar
+    getProveedores();
+    setShowModal(false); // Cerrar el modal después de agregar
   };
 
   const handleUpdate = (proveedorActualizado) => {
     setProveedores((prevProveedores) =>
       prevProveedores.map((proveedor) =>
-        proveedor.id_proveedor === proveedorActualizado.id_proveedor ? proveedorActualizado : proveedor
+        proveedor.id_proveedor === proveedorActualizado.id_proveedor
+          ? proveedorActualizado
+          : proveedor
       )
     );
     setProveedorEdit(null);
     alert('Proveedor actualizado correctamente');
-    getProveedores(); // Vuelve a cargar la lista después de editar
+    getProveedores();
+    setShowModal(false); // Cerrar el modal después de editar
   };
 
   const handleEdit = (proveedor) => {
     setProveedorEdit(proveedor);
+    setShowModal(true); // Mostrar el modal para editar
   };
 
   const handleWhatsAppClick = (numero) => {
@@ -96,14 +94,17 @@ const MainProveedores = ({}) => {
               <td>{proveedor.email_proveedor}</td>
               <td>{proveedor.numero_proveedor}</td>
               <td>
-                <ProveedoresDelete 
-                  proveedor={proveedor} 
-                  API_URL={API_URL} 
-                  onDelete={handleDelete} 
+                <ProveedoresDelete
+                  proveedor={proveedor}
+                  API_URL={API_URL}
+                  onDelete={handleDelete}
+                 
                 />
-                <button onClick={() => handleEdit(proveedor)}>Editar</button>
-                <button onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)}>
-                  <FaWhatsapp /> WhatsApp
+                <button onClick={() => handleEdit(proveedor)} style={{color:'var(--color-primary-400)', backgroundColor:'transparent'}}>
+                  <FaEdit /> 
+                </button>
+                <button onClick={() => handleWhatsAppClick(proveedor.numero_proveedor)} style={{color:'var(--color-primary-400)', backgroundColor:'transparent'}}>
+                  <FaWhatsapp /> 
                 </button>
               </td>
             </tr>
@@ -111,12 +112,27 @@ const MainProveedores = ({}) => {
         </tbody>
       </table>
 
-      <ProveedoresCreate
-        onAdd={handleAdd}
-        onEdit={handleUpdate}
-        proveedor={proveedorEdit}
-        API_URL={API_URL}
-      />
+      {/* Botón para abrir el modal */}
+      <button className="create-btn" onClick={() => setShowModal(true)}>
+        <FaPlus /> Crear Nuevo Proveedor
+      </button>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-modal" onClick={() => setShowModal(false)}>
+              X
+            </button>
+            <ProveedoresCreate
+              onAdd={handleAdd}
+              onEdit={handleUpdate}
+              proveedor={proveedorEdit}
+              API_URL={API_URL}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

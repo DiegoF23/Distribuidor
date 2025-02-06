@@ -4,33 +4,63 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
 }
-
-.MenuComponente{
-    width: 12vw;
-    height:89vh;
-    border-right: 1px solid rgb(197, 197, 197);
-}
-
-.btn-menu .link{
-    cursor: pointer;
-    text-decoration: none;
-    padding: 10px;
-    color: var(--color-primary-400);
-}
-
-.btn-menu.active {
-    background-color: var(--color-primary-200); /* Color cuando está seleccionado */
-    color: var(--color-primary-500); /* Texto en blanco */
-}
+/* src/styles/Dashboard/Dashboard.css */
+.MenuComponente {
+    background-color: #f8f9fa;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
   
-  .btn-menu.active .link {
-    color: var(--color-primary-500); /* Para que el texto e icono también cambien de color */
-}
-
-.link svg, .link img {
-    margin-right: 5px;
-    margin-top: 10px; 
-}
+  .menu-btn {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .btn-menu {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #1e3a8a; /* Color principal */
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+   
+    
+  }
+  
+  .btn-menu:hover {
+    background-color: #e0ecfc; /* Color al pasar el mouse */
+  }
+  
+  .btn-menu.active {
+    background-color: #dbeafe; /* Color del botón activo */
+    color: #1d4ed8; /* Color del texto activo */
+  }
+  
+  .link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .link svg {
+    font-size: 20px;
+  }
+  
+  /* Estilo para el encabezado del menú */
+  .MenuComponente .menu-header {
+    background-color: #1e3a8a;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+  
 
 .dashboard-elements{
     width: 86vw;
