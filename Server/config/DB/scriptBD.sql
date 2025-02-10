@@ -284,7 +284,11 @@ ON DUPLICATE KEY UPDATE cantidad_disponible = 350;
 INSERT INTO Movimiento_Stock (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad)
 VALUES (@id_cepita, 1, 2, 'entrada', 350);
 
+<<<<<<< HEAD
 -- Insertar stock en la sucursal 2 para Cepita 1.5L (Valor Intermedio: 350)
+=======
+-- 4. Insertar stock en la Sucursal 2 (Valor Óptimo)
+>>>>>>> 565177a90b66fbcb0bcd41c45a5056a053ba1d6a
 INSERT INTO Stock (id_producto, id_sucursal, cantidad_disponible)
 VALUES (@id_cepita, 2, 350)
 ON DUPLICATE KEY UPDATE cantidad_disponible = 310;
@@ -390,28 +394,11 @@ CREATE TABLE clientes (
     numero_cliente VARCHAR(50)
 );
 
-INSERT INTO proveedores (apellido_proveedor, nombre_proveedor, codigo_proveedor, email_proveedor, numero_proveedor) 
-VALUES ('Albornoz','Alvaro','AA','alvaro@gmail.com','3816821901');
-
-INSERT INTO proveedores (apellido_proveedor, nombre_proveedor, codigo_proveedor, email_proveedor, numero_proveedor) 
-VALUES ('Flores','Diego','FD','diego@gmail.com','3816155136');
-
-SELECT * FROM proveedores;
-
--- =============================
--- NUEVA SECCIÓN: SOCIOS, APORTES Y GANANCIAS
--- =============================
-
--- Tabla de Socios (actualizada para incluir id_sucursal)
-CREATE TABLE Socios (
-    id_socio INT PRIMARY KEY AUTO_INCREMENT,
-    id_sucursal INT NOT NULL DEFAULT 1,
-    nombre VARCHAR(100) NOT NULL,
-    fecha_maxima_participacion DATE NOT NULL,
-    direccion VARCHAR(255),
-    telefono VARCHAR(15),
-    mail VARCHAR(100),
-    FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal)
+INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,email_proveedor,numero_proveedor) values (
+"Albornoz","Alvaro","AA","alvaro@gmail.com","3816821901"
+);
+INSERT INTO proveedores (apellido_proveedor,nombre_proveedor,codigo_proveedor,email_proveedor,numero_proveedor) values (
+"Flores","Diego","FD","diego@gmail.com","3816155136"
 );
 
 -- Tabla de Aportes (cada socio puede tener múltiples aportes)

@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Alert,
+  Container,
+  CssBaseline,
+} from "@mui/material";
 import LoteForm from "./LoteForm";
 import LoteList from "./LoteList";
 import StockCharts from "./StockCharts";
@@ -34,7 +43,6 @@ const Analisis1 = () => {
     fetchStock();
   }, []);
 
-  // actualizar y stock
   const calcularBotellas = (loteData) => {
     const { pallets, basesPorPallet, fardosPorBase, botellasPorFardo } = loteData;
     return pallets * basesPorPallet * fardosPorBase * botellasPorFardo;
@@ -47,8 +55,6 @@ const Analisis1 = () => {
       return;
     }
     if (editingLoteId !== null) {
-
-      // Actualizar lote - edicion
       const oldLote = lotes.find((l) => l.id === editingLoteId);
       let nuevoStock = stock.map((item) => {
         if (item.producto === oldLote.producto) {
@@ -69,8 +75,6 @@ const Analisis1 = () => {
       setLotes(nuevosLotes);
       setEditingLoteId(null);
     } else {
-
-      // Agregar un nuevo lote
       const nuevaLote = { ...loteData, total: botellas, id: Date.now() };
       setLotes([...lotes, nuevaLote]);
       const nuevoStock = stock.map((item) =>
@@ -101,24 +105,57 @@ const Analisis1 = () => {
   };
 
   return (
-    <div>
-      <h1>Análisis de Datos</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <LoteForm
-        lote={lote}
-        setLote={setLote}
-        onSubmit={handleSubmitLote}
-        editingLoteId={editingLoteId}
-        
-      />
-      <LoteList
-        lotes={lotes}
-        onEdit={handleEditLote}
-        onDelete={handleDeleteLote}
-        
-      />
-      <StockCharts stock={stock} />
-    </div>
+    <Container component="main" maxWidth="lg">
+      <CssBaseline />
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom align="center" color="primary">
+          Análisis de Datos
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        <Grid container spacing={4}>
+          {/* Formulario de Lote */}
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Crear o Editar Lote
+              </Typography>
+              <LoteForm
+                lote={lote}
+                setLote={setLote}
+                onSubmit={handleSubmitLote}
+                editingLoteId={editingLoteId}
+              />
+            </Paper>
+          </Grid>
+          {/* Lista de Lotes */}
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Lista de Lotes
+              </Typography>
+              <LoteList
+                lotes={lotes}
+                onEdit={handleEditLote}
+                onDelete={handleDeleteLote}
+              />
+            </Paper>
+          </Grid>
+          {/* Gráficos de Stock */}
+          <Grid item xs={12}>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Gráficos de Stock
+              </Typography>
+              <StockCharts stock={stock} />
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 

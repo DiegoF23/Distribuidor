@@ -144,7 +144,7 @@ const CrearProducto = ({ onProductoCreado }) => {
           onChange={(e) => setStockOptimo(e.target.value)}
           required
         />
-        <p>Stock Mínimo</p>1
+        <p>Stock Mínimo</p>
         <input
           type="number"
           placeholder="Stock Mínimo"

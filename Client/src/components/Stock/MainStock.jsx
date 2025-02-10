@@ -139,7 +139,7 @@ const MainStock = () => {
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>Stock Mínimo</th>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>Estado del Stock</th>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>Stock Óptimo</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd", backgroundColor: "#e0f7fa" }}>Stock Total</th>
+            <th style={{ padding: "10px", border: "1px solid #ddd", backgroundColor: "var(--color-primary-100)" }}>Stock Total</th>
             <th style={{ padding: "10px", border: "1px solid #ddd" }}>Ultima Actualización</th>
           </tr>
         </thead>
@@ -203,7 +203,7 @@ const MainStock = () => {
                         color: "#000",
                         fontWeight: "bold",
                         textAlign: "center",
-                        fontSize: "14px",
+                        fontSize: "12px",
                       }}
                     >
                       {item.estado_stock} ({item.cantidad_disponible})
