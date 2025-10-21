@@ -11,6 +11,7 @@ import Login from "../../layouts/Login";
 import Proveedores from "../../pages/Proveedores";
 import Clientes from "../../pages/Clientes";
 import Lotes from "../../pages/Lotes";
+import MainHome from "../../components/Home/MainHome";
 // Rutas definidas en el contexto
 const RoutesContext = createContext();
 
@@ -21,7 +22,7 @@ export const RoutesProvider = ({ children }) => {
       icon: <FaHouse />,
       path: "/",
       name: "Home",
-      element: <h2>Bienvenido al Home</h2>,
+      element: <MainHome/>,
     },
     {
       id: 2,

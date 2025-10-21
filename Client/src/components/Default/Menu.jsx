@@ -1,6 +1,5 @@
-// src/components/Menu.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import '../../styles/Dashboard/Dashboard.css';
 import { useRoutesContext } from "../../contexts/Routes/RoutesContext";
 
@@ -11,17 +10,14 @@ const Menu = () => {
     <nav className='MenuComponente'>
       <div className="menu-btn">
         {routes.map((route) => (
-          <div 
-          className={`btn-menu ${location.pathname === route.path ? "active" : ""}`}
-           key={route.id}>
-            <Link
+          <div className="btn-menu" key={route.id}>
+            <NavLink
               to={route.path}
-              className="link"
+              className={({isActive}) => `link ${isActive ? 'active' : ''}`}
             >
               {route.icon}
               {route.name}
-            </Link>
-           <br /><br />
+            </NavLink>
           </div>
         ))}
       </div>
@@ -30,4 +26,3 @@ const Menu = () => {
 };
 
 export default Menu;
-

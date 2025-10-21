@@ -1,222 +1,168 @@
-import React, { useState, useEffect } from "react";
+// src/components/Stock/MainStock.jsx
+import React, { useEffect } from "react";
 import { useStock } from "../../contexts/Stock/StockContext";
-import { format } from 'date-fns';
+import "../../styles/style.css";
+
+const BANNER_IMG =
+  "https://www.arbentia.com/wp-content/uploads/2023/09/dos-personas-en-almacen-haciendo-inventario.png";
 
 const MainStock = () => {
   const { stock, loading, error, obtenerStockSucursal } = useStock();
-  const [stockFiltradoDefecto, setStockFiltradoDefecto] = useState();
-  const [stockFiltrado, setStockFiltrado] = useState();
-  const [busqueda, setBusqueda] = useState("");
-  const [lineaSeleccionada, setLineaSeleccionada] = useState("");
-  const [capacidadSeleccionada, setCapacidadSeleccionada] = useState("");
-  const [estadoStockSeleccionado, setEstadoStockSeleccionado] = useState("");
-  
-  // Obtener el stock de la sucursal 1 al cargar el componente
+
   useEffect(() => {
     obtenerStockSucursal(1);
-    limpiarFiltros(); // Limpiar filtros al cambiar de sucursal
   }, []);
 
-  // Filtrar los productos por fecha de última actualización (más reciente a más antigua)
-  useEffect(() => {
-    if (stock) {
-      const stockdefecto = [...stock].sort((a, b) => {
-        const dateA = new Date(a.ultima_actualizacion);
-        const dateB = new Date(b.ultima_actualizacion);
-        return dateB - dateA; // Ordenar de más reciente a más antiguo
-      });
-      setStockFiltradoDefecto(stockdefecto);
-    }
-    if (stockFiltradoDefecto) {
-      let filtrado = [...stockFiltradoDefecto];
+  if (loading) return <p className="center">Cargando stock...</p>;
+  if (error) return <p className="center">Error: {error}</p>;
 
-      if (busqueda) {
-        filtrado = filtrado.filter((item) =>
-          item.producto.toLowerCase().includes(busqueda.toLowerCase())
-        );
-      }
+  // estilos locales
+  const hero = {
+    position: "relative",
+    height: 220,
+    borderRadius: 18,
+    overflow: "hidden",
+    boxShadow: "0 14px 34px rgba(2,8,23,.12)",
+    background: `url(${BANNER_IMG}) center/cover no-repeat`,
+  };
+  const heroOverlay = {
+    position: "absolute",
+    inset: 0,
+    background:
+      "linear-gradient(180deg, rgba(2,6,23,.25) 0%, rgba(2,6,23,.65) 100%)",
+  };
+  const heroText = {
+    position: "absolute",
+    left: 20,
+    bottom: 16,
+    color: "#fff",
+    textShadow: "0 2px 16px rgba(0,0,0,.35)",
+  };
+  const heroTitle = { margin: 0, fontSize: 28, lineHeight: 1.1, fontWeight: 800 };
+  const heroSub = { margin: "6px 0 0", opacity: 0.9 };
 
-      if (lineaSeleccionada) {
-        filtrado = filtrado.filter((item) => item.marca === lineaSeleccionada);
-      }
+  const legend = {
+    display: "flex",
+    gap: 10,
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 14,
+  };
+  const pill = (bg, txt = "#0b1220") => ({
+    background: bg,
+    color: txt,
+    borderRadius: 999,
+    padding: "6px 10px",
+    fontSize: 12,
+    fontWeight: 700,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    boxShadow: "0 8px 18px rgba(2,8,23,.08)",
+  });
+  const dot = (c) => ({
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    background: c,
+  });
 
-      if (capacidadSeleccionada) {
-        filtrado = filtrado.filter(
-          (item) => item.capacidad === Number(capacidadSeleccionada)
-        );
-      }
-
-      if (estadoStockSeleccionado) {
-        filtrado = filtrado.filter(
-          (item) => item.estado_stock === estadoStockSeleccionado
-        );
-      }
-
-      setStockFiltrado(filtrado);
-    }
-  }, [stock,busqueda, lineaSeleccionada,capacidadSeleccionada, estadoStockSeleccionado]);
-  // Limpiar todos los filtros
-  const limpiarFiltros = () => {
-    setBusqueda("");
-    setLineaSeleccionada("");
-    setCapacidadSeleccionada("");
-    setEstadoStockSeleccionado("");
-};
-  const marcasDisponibles = [...new Set(stockFiltrado?.map(item => item.marca))];
-  const capacidadDisponibles = [...new Set(stockFiltrado?.map(item => item.capacidad))];
-  const estadoDisponibles = [...new Set(stockFiltrado?.map(item => item.estado_stock))];
- 
-  if (loading) return <p>Cargando stock...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Stock de la Sucursal</h1>
-      <div className="container-filtros" style={{ display: "flex", gap: "2%" }}>
-        
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          style={{ width: "10%", padding: "10px", marginBottom: "20px" }}
-          value={busqueda} // Vinculamos el estado de búsqueda al valor del input
-          onChange={(e) => setBusqueda(e.target.value)} // Actualizamos el estado al escribir
-        />
-        {/* Filtro por línea (marca) */}
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={lineaSeleccionada}
-          onChange={(e) => setLineaSeleccionada(e.target.value)}
-        >
-          <option value="">Selecciona una Línea</option>
-          {marcasDisponibles.map((marca) => (
-            <option key={marca} value={marca}>
-              {marca}
-            </option>
-          ))}
-        </select>
-        {/* Filtro por capacidad */}
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={capacidadSeleccionada}
-          onChange={(e) => setCapacidadSeleccionada(e.target.value)}
-        >
-        <option value="">Selecciona una Capacidad</option>
-          {capacidadDisponibles.map((capacidad) => {
-          const displayCapacidad = capacidad >= 1000 ? `${capacidad / 1000} L` : `${capacidad} ml`;
-          return (
-        <option key={capacidad} value={capacidad}>
-          {displayCapacidad}
-        </option>
-      );
-      })}
-      </select>
-      {/* Filtro por estado de stock */}
-      <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={estadoStockSeleccionado}
-          onChange={(e) => setEstadoStockSeleccionado(e.target.value)}
-        >
-          <option value="">Selecciona un Estado de Stock</option>
-          {estadoDisponibles.map((estado_stock) => (
-            <option key={estado_stock} value={estado_stock}>
-              {estado_stock}
-            </option>
-          ))}
-        </select>
-        <button onClick={limpiarFiltros} style={{ padding: "10px", marginBottom: "20px" }}>Limpiar Filtros</button>
-      </div>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f4f4f4" }}>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Producto</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Linea</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Capacidad</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Stock Mínimo</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Estado del Stock</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Stock Óptimo</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd", backgroundColor: "#e0f7fa" }}>Stock Total</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Ultima Actualización</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(stockFiltrado || []).map((item) => {
-            // Calcular el porcentaje de stock disponible respecto al stock óptimo
-            const porcentajeStock = (item.cantidad_disponible / item.stock_optimo) * 100;
-            const porcentajeStockMinimo = ((item.stock_minimo* 100) / item.stock_optimo);
-            const capacidadfinal = item.capacidad>=1000 ? `${(item.capacidad/1000)}  L` : `${item.capacidad} ml`;
-            return (
-              <tr key={`${item.producto}-${item.sucursal}`} style={{ borderBottom: "1px solid #ddd" }}>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.producto}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{item.marca}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{capacidadfinal}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{item.stock_minimo}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                  <div
-                    style={{
-                      width: "100%",
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "10px",
-                      height: "30px",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {/* Barra de progreso */}
-                    <div
-                      style={{
-                        width: `${porcentajeStock}%`,
-                        backgroundColor:
-                          item.cantidad_disponible < item.stock_minimo
-                            ? "#ff6b6b" // Rojo si está por debajo del mínimo
-                            : item.cantidad_disponible < item.stock_optimo
-                            ? "#ffd166" // Amarillo si está por debajo del óptimo
-                            : "#06d6a0", // Verde si está en el nivel óptimo o superior
-                        height: "100%",
-                        borderRadius: "10px",
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                      }}
-                    ></div>
-                    <div 
-                      style={{ position: "absolute",
-                       left: `${porcentajeStockMinimo}%`,
-                        top: 0,
-                         bottom: 0,
-                          width: "2px",
-                           background: "red" 
-                           }}
-                           ></div>
+    <div className="container-page">
+      {/* Banner superior */}
+      <div style={hero} aria-label="Inventario y logística">
+        <div style={heroOverlay} />
+        <div style={heroText}>
+          <h1 style={heroTitle}>Stock de la Sucursal</h1>
+          <p style={heroSub}>
+            Visión en tiempo real del inventario para planificar compras y
+            reposición.
+          </p>
 
-                    {/* Texto del estado y valor numérico */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "45%",
-                        transform: "translate(-45%, -50%)",
-                        color: "#000",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {item.estado_stock} ({item.cantidad_disponible})
+          {/* Leyenda de estado */}
+          <div style={legend}>
+            <span style={pill("#eef2ff", "var(--color-primary-500)")}>
+              <span style={dot("var(--color-primary-400)")} />
+              Progreso
+            </span>
+            <span style={pill("#fee2e2", "#991b1b")}>
+              <span style={dot("#ef4444")} />
+              Bajo (debajo del mínimo)
+            </span>
+            <span style={pill("#fff7ed", "#9a3412")}>
+              <span style={dot("#f59e0b")} />
+              En camino al óptimo
+            </span>
+            <span style={pill("#ecfdf5", "#065f46")}>
+              <span style={dot("#16a34a")} />
+              Óptimo / Alto
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="table-wrap mt-3">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th className="num">Stock Mínimo</th>
+              <th>Estado del Stock</th>
+              <th className="num">Stock Óptimo</th>
+              <th className="num">Stock Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stock.map((item) => {
+              const porcentaje =
+                item.stock_optimo > 0
+                  ? clamp(
+                      (item.cantidad_disponible / item.stock_optimo) * 100,
+                      0,
+                      100
+                    )
+                  : 0;
+
+              const color =
+                item.cantidad_disponible < item.stock_minimo
+                  ? "#ef4444" // bajo
+                  : item.cantidad_disponible < item.stock_optimo
+                  ? "#f59e0b" // medio
+                  : "#16a34a"; // alto
+
+              return (
+                <tr key={`${item.producto}-${item.sucursal}`}>
+                  <td>{item.producto}</td>
+                  <td className="num">{item.stock_minimo}</td>
+                  <td>
+                    <div className="progress">
+                      <div
+                        className="progress__bar"
+                        style={{
+                          width: `${porcentaje}%`,
+                          background: color,
+                          transition: "width .35s ease",
+                        }}
+                        title={`${Math.round(porcentaje)}%`}
+                      />
+                      <div className="progress__txt">
+                        {item.estado_stock} ({item.cantidad_disponible})
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{item.stock_optimo}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center", backgroundColor: "#e0f7fa", fontWeight: "bold" }}>
-                  {item.cantidad_disponible}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
-                  {format(new Date(item.ultima_actualizacion), "dd-MM-yyyy - HH-mm-ss")}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                  <td className="num">{item.stock_optimo}</td>
+                  <td className="num">
+                    <strong>{item.cantidad_disponible}</strong>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -5,7 +5,7 @@ const ApiContext = createContext();
 
 
 const ApiProvider = ({children}) => {
-  const API_URL = "http://localhost:5000/api";
+  const API_URL = "http://localhost:5001/api";
 
   return (
    <ApiContext.Provider value={{API_URL}}>

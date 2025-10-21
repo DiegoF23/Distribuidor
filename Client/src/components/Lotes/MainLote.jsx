@@ -1,8 +1,13 @@
-// src/components/Lotes/MainLote.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useApiContext } from "../../contexts/api/ApiContext";
-import { format } from 'date-fns';
+import "../../styles/style.css";
+
+// Imagen específica para Coca-Cola (la que enviaste) y un fallback genérico
+const COCA_IMG =
+  "https://thumbs.dreamstime.com/b/carro-de-salida-de-la-coca-cola-20911825.jpg";
+const GENERIC_IMG =
+  "https://mesumex.com/cdn/shop/articles/montacargas_2_1200x1200.jpg?v=1680235716";
 
 const MainLote = ({ idSucursal, onActualizarLotes }) => {
   const { API_URL } = useApiContext();
@@ -11,17 +16,47 @@ const MainLote = ({ idSucursal, onActualizarLotes }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loteSeleccionado, setLoteSeleccionado] = useState(null);
-    
-    const [busqueda, setBusqueda] = useState("");
-    const [busquedaUsuario, setBusquedaUsuario] = useState("");
-    const [productoSeleccionado, setProductoSeleccionado] = useState("");
-    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState("");
-    const [capacidadSeleccionada, setCapacidadSeleccionada] = useState("");
-    const [estadoStockSeleccionado, setEstadoStockSeleccionado] = useState(""); 
-    const [ordenCantidad, setOrdenCantidad] = useState("Cantmayor");
 
+  // Helpers UI
+  const fmtDate = (v) => {
+    if (!v) return "-";
+    try {
+      const dt = new Date(v);
+      return new Intl.DateTimeFormat("es-AR", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+      }).format(dt);
+    } catch {
+      return v;
+    }
+  };
 
-  // Función para obtener los lotes de la sucursal
+  const fmtMoney = (n) => {
+    if (n == null) return "-";
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 2,
+    }).format(Number(n));
+  };
+
+  const vencimientoBadge = (isoDate) => {
+    if (!isoDate) return <span className="badge">Sin fecha</span>;
+    const today = new Date();
+    const d = new Date(isoDate);
+    const diff = Math.ceil((d - today) / (1000 * 60 * 60 * 24)); // días
+    if (diff < 0) return <span className="badge danger">Vencido</span>;
+    if (diff <= 30) return <span className="badge warning">Próximo a vencer</span>;
+    return <span className="badge success">OK</span>;
+  };
+
+  const bannerFor = (lote) => {
+    const p = (lote?.producto || "").toLowerCase();
+    return p.includes("coca") ? COCA_IMG : GENERIC_IMG;
+  };
+
+  // Data
   const obtenerLotes = async () => {
     try {
       const response = await axios.get(`${API_URL}/lotes/${idSucursal}`);
@@ -33,58 +68,15 @@ const MainLote = ({ idSucursal, onActualizarLotes }) => {
     }
   };
 
-  // Obtener los lotes al cargar el componente o cuando cambie idSucursal
   useEffect(() => {
     obtenerLotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idSucursal]);
 
-  useEffect(() => {
-        if (lotes) {
-          let filtrado = [...lotes];
-    
-          if (busqueda) {
-            filtrado = filtrado.filter((item) =>
-              item.codigo_lote.toLowerCase().includes(busqueda.toLowerCase())
-
-            );
-          }
-          if (productoSeleccionado) {
-            filtrado = filtrado.filter((item) => item.producto === productoSeleccionado);
-          }
-          
-          
-          if (usuarioSeleccionado) {
-            filtrado = filtrado.filter((item) => item.usuario_creador === usuarioSeleccionado);
-          }
-          
-          if (ordenCantidad === "Cantmayor") {
-            filtrado.sort((a, b) => b.total_unidades - a.total_unidades);
-          } else if (ordenCantidad === "Cantmenor") {
-            filtrado.sort((a, b) => a.total_unidades - b.total_unidades);
-          } else if (ordenCantidad === "Costmayor") {
-            filtrado.sort((a, b) => b.costo_lote - a.costo_lote);
-          } else if (ordenCantidad === "Costmenor") {
-            filtrado.sort((a, b) => a.costo_lote - b.costo_lote);
-          } else if (ordenCantidad === "FechaCactual") {
-            filtrado.sort((a, b) => {
-              const dateA = new Date(a.fecha_creacion);
-              const dateB = new Date(b.fecha_creacion);
-              return dateB - dateA; // Ordenar de más reciente a más antiguo
-            });
-          } else if (ordenCantidad === "FechaCantigua") {
-            filtrado.sort((a, b) => {
-              const dateA = new Date(a.fecha_creacion);
-              const dateB = new Date(b.fecha_creacion);
-              return dateA - dateB; // Ordenar de más antiguo a más reciente
-            });
-          } else{}
-          setLotesFiltrados(filtrado);
-        }
-      }, [lotes,busqueda, productoSeleccionado, usuarioSeleccionado, ordenCantidad]);
-  
-  // Función para manejar el clic en una fila
   const handleClickFila = (lote) => {
-    setLoteSeleccionado(lote.id_lote === loteSeleccionado?.id_lote ? null : lote);
+    setLoteSeleccionado(
+      lote.id_lote === loteSeleccionado?.id_lote ? null : lote
+    );
   };
   const limpiarFiltros = () => {
     setBusqueda("");
@@ -94,124 +86,179 @@ const MainLote = ({ idSucursal, onActualizarLotes }) => {
   const ProductosDisponibles = [...new Set(lotesFiltrados?.map(item => item.producto))];
   const UsuariosDisponibles = [...new Set(lotesFiltrados?.map(item => item.usuario_creador))];
 
-  if (loading) return <p>Cargando lotes...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <p className="center">Cargando lotes...</p>;
+  if (error) return <p className="center">Error: {error}</p>;
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Listado de Lotes</h1>
-      <div className="container-filtroorden" style={{ display: "flex", gap: "2%" }}>
-      <div className="container-filtros" style={{ display: "flex", gap: "2%" }}>
-        
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          style={{ width: "10%", padding: "10px", marginBottom: "20px" }}
-          value={busqueda} // Vinculamos el estado de búsqueda al valor del input
-          onChange={(e) => setBusqueda(e.target.value)} // Actualizamos el estado al escribir
-        />
-        {/* Filtro por línea (marca) */}
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={productoSeleccionado}
-          onChange={(e) => setProductoSeleccionado(e.target.value)}
-        >
-          <option value="">Selecciona una Línea</option>
-          {ProductosDisponibles.map((producto) => (
-            <option key={producto} value={producto}>
-              {producto}
-            </option>
-          ))}
-        </select>
-        <select
-          style={{ padding: "10px", marginBottom: "20px" }}
-          value={usuarioSeleccionado}
-          onChange={(e) => setUsuarioSeleccionado(e.target.value)}
-        >
-        <option value="">Selecciona un Usuario</option>
-        {UsuariosDisponibles.map((usuario_creador) => (
-            <option key={usuario_creador} value={usuario_creador}>
-              {usuario_creador}
-            </option>
-          ))}
-      </select>
-        <button onClick={limpiarFiltros} style={{ padding: "10px", marginBottom: "20px" }}>Limpiar Filtros</button>
+    <div className="container-page">
+      <h1 className="center">Listado de Lotes</h1>
+
+      <div className="table-wrap mt-3">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Código de Lote</th>
+              <th>Producto</th>
+              <th>Fecha de Vencimiento</th>
+              <th className="num">Cantidad Total</th>
+              <th>Sucursal</th>
+              <th>Usuario Creador</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lotes.map((lote) => {
+              const active = loteSeleccionado?.id_lote === lote.id_lote;
+              return (
+                <React.Fragment key={lote.id_lote}>
+                  <tr
+                    onClick={() => handleClickFila(lote)}
+                    style={{
+                      cursor: "pointer",
+                      background: active ? "#f0f6ff" : "transparent",
+                    }}
+                  >
+                    <td>
+                      <strong>{lote.codigo_lote}</strong>
+                    </td>
+                    <td>{lote.producto}</td>
+                    <td>
+                      {fmtDate(lote.fecha_vencimiento)}&nbsp;
+                      {vencimientoBadge(lote.fecha_vencimiento)}
+                    </td>
+                    <td className="num">{lote.total_unidades}</td>
+                    <td>{lote.sucursal}</td>
+                    <td>{lote.usuario_creador}</td>
+                  </tr>
+
+                  {active && (
+                    <tr>
+                      <td colSpan="6">
+                        <div className="card mt-2" style={{ overflow: "hidden" }}>
+                          {/* Banner con imagen */}
+                          <div
+                            aria-label="Imagen ilustrativa del lote"
+                            style={{
+                              position: "relative",
+                              height: 160,
+                              width: "100%",
+                              background: `url(${bannerFor(
+                                lote
+                              )}) center/cover no-repeat`,
+                              borderRadius: 12,
+                              marginBottom: 12,
+                            }}
+                          >
+                            {/* Degradado y rótulo */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                  "linear-gradient(0deg, rgba(15,23,42,.55), rgba(15,23,42,.15))",
+                                borderRadius: 12,
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: 16,
+                                bottom: 12,
+                                color: "#fff",
+                                textShadow: "0 2px 10px rgba(0,0,0,.35)",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {lote.producto} · {lote.codigo_lote}
+                            </div>
+                          </div>
+
+                          {/* Grid detalles */}
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1.2fr .8fr",
+                              gap: 18,
+                            }}
+                          >
+                            {/* Columna izquierda */}
+                            <div>
+                              <h3 style={{ margin: "0 0 8px" }}>
+                                <strong>Detalles del Lote</strong>
+                              </h3>
+                              <p>
+                                <strong>Código de Lote:</strong>{" "}
+                                <span style={{ fontWeight: 800 }}>
+                                  {lote.codigo_lote}
+                                </span>
+                              </p>
+                              <p>
+                                <strong>Producto:</strong> {lote.producto}
+                              </p>
+                              <p>
+                                <strong>Fecha de Creación:</strong>{" "}
+                                {fmtDate(lote.fecha_creacion)}
+                              </p>
+                              <p>
+                                <strong>Fecha de Vencimiento:</strong>{" "}
+                                {fmtDate(lote.fecha_vencimiento)}&nbsp;
+                                {vencimientoBadge(lote.fecha_vencimiento)}
+                              </p>
+                              <p>
+                                <strong>Costo del Lote:</strong>{" "}
+                                {fmtMoney(lote.costo_lote)}
+                              </p>
+                              <p>
+                                <strong>Configuración del Lote:</strong>{" "}
+                                {lote.configuracion_lote}
+                              </p>
+                              <p>
+                                <strong>Total de Unidades:</strong>{" "}
+                                <span style={{ fontWeight: 800 }}>
+                                  {lote.total_unidades?.toLocaleString("es-AR")}
+                                </span>
+                              </p>
+                            </div>
+
+                            {/* Columna derecha: KPIs */}
+                            <div>
+                              <div className="kpis">
+                                <div className="kpi">
+                                  <span>Pallets</span>
+                                  <span className="val">
+                                    {lote.cantidad_pallets}
+                                  </span>
+                                </div>
+                                <div className="kpi">
+                                  <span>Bases</span>
+                                  <span className="val">
+                                    {lote.cantidad_bases}
+                                  </span>
+                                </div>
+                                <div className="kpi">
+                                  <span>Fardos</span>
+                                  <span className="val">
+                                    {lote.cantidad_fardos}
+                                  </span>
+                                </div>
+                                <div className="kpi">
+                                  <span>Botellas</span>
+                                  <span className="val">
+                                    {lote.cantidad_botellas}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <div className="container-orden" style={{ display: "flex", gap: "2%", marginLeft: "auto" }}>
-      <label style={{ fontWeight: "bold"}}>Ordenar por: </label>
-      <select
-            style={{ padding: "10px", marginBottom: "20px" }}
-            value={ordenCantidad}
-            onChange={(e) => setOrdenCantidad(e.target.value)}
-          >
-            <option value="Cantmayor">Cantidad Mayor a Menor</option>
-            <option value="Cantmenor">Cantidad Menor a Mayor</option>
-            <option value="Costmayor">Costo Mayor a Menor</option>
-            <option value="Costmenor">Costo Menor a Mayor</option>
-            <option value="FechaCactual">Fecha Creación mas reciente</option>
-            <option value="FechaCantigua">Fecha Creación mas antigua</option>
-          </select>
-      </div>
-      </div>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f4f4f4" }}>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Código de Lote</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Producto</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Fecha de Creación</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Fecha de Vencimiento</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Cantidad Total</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Costo</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Sucursal</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Usuario Creador</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lotesFiltrados.map((lote) => (
-            <React.Fragment key={lote.id_lote}>
-              <tr
-                onClick={() => handleClickFila(lote)}
-                style={{
-                  borderBottom: "1px solid #ddd",
-                  cursor: "pointer",
-                  backgroundColor: loteSeleccionado?.id_lote === lote.id_lote ? "#f0f0f0" : "transparent",
-                }}
-              >
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{lote.codigo_lote}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{lote.producto}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{format(new Date(lote.fecha_creacion), "dd-MM-yyyy")}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{format(new Date(lote.fecha_vencimiento), "dd-MM-yyyy")}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>{lote.total_unidades}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd", textAlign: "center" }}>
-                  {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(lote.costo_lote)}
-                </td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{lote.sucursal}</td>
-                <td style={{ padding: "10px", border: "1px solid #ddd" }}>{lote.usuario_creador}</td>
-              </tr>
-              {loteSeleccionado?.id_lote === lote.id_lote && (
-                <tr>
-                  <td colSpan="6" style={{ padding: "10px", border: "1px solid #ddd" }}>
-                    <div style={{ backgroundColor: "#f9f9f9", padding: "10px", borderRadius: "5px" }}>
-                      <h3>Detalles del Lote</h3>
-                      <p><strong>Código de Lote:</strong> {lote.codigo_lote}</p>
-                      <p><strong>Producto:</strong> {lote.producto}</p>
-                      <p><strong>Fecha de Creación:</strong> {format(new Date(lote.fecha_creacion), "dd-MM-yyyy")}</p>
-                      <p><strong>Fecha de Vencimiento:</strong> {format(new Date(lote.fecha_vencimiento), "dd-MM-yyyy")}</p>
-                      <p><strong>Costo del Lote:</strong> {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(lote.costo_lote)}</p>
-                      <p><strong>Configuración del Lote:</strong> {lote.configuracion_lote}</p>
-                      <p><strong>Total de Unidades:</strong> {lote.total_unidades}</p>
-                      <p><strong>Pallets:</strong> {lote.cantidad_pallets}</p>
-                      <p><strong>Bases:</strong> {lote.cantidad_bases}</p>
-                      <p><strong>Fardos:</strong> {lote.cantidad_fardos}</p>
-                      <p><strong>Botellas:</strong> {lote.cantidad_botellas}</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };

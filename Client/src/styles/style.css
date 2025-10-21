@@ -1,10 +1,127 @@
+/* ============ Design Tokens (ya tenías la paleta) ============ */
 #root{
-    font-family: 'Inter', sans-serif;
---color-primary-700:rgba(4, 19, 45, 1);
---color-primary-600:rgba(8, 35, 81, 1);
---color-primary-500:rgba(22, 57, 118, 1);
---color-primary-400:rgba(38, 85, 166, 1);
---color-primary-300:rgba(179, 207, 255, 1);
---color-primary-200:rgba(214, 228, 255, 1);
---color-primary-100:rgba(240, 245, 255, 1);
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --color-primary-700:rgba(4, 19, 45, 1);
+  --color-primary-600:rgba(8, 35, 81, 1);
+  --color-primary-500:rgba(22, 57, 118, 1);
+  --color-primary-400:rgba(38, 85, 166, 1);
+  --color-primary-300:rgba(179, 207, 255, 1);
+  --color-primary-200:rgba(214, 228, 255, 1);
+  --color-primary-100:rgba(240, 245, 255, 1);
+
+  --bg:#f6f7fb;
+  --panel:#fff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --ring:0 0 0 3px rgba(38,85,166,.22);
+  --radius:14px;
+  --shadow:0 14px 32px rgba(15, 23, 42, .08);
 }
+
+*{box-sizing:border-box}
+html, body, #root{height:100%}
+body{ margin:0; background:
+  radial-gradient(900px 500px at -10% -10%, #e9f0ff 0%, transparent 50%),
+  linear-gradient(#f9fbff, #f7f8fc) no-repeat var(--bg);
+  color:var(--text);
+}
+
+/* ============ Layout utilidades ============ */
+.container-page{ width:min(1200px, 94%); margin:0 auto; padding:20px 0; }
+
+/* ============ Tarjetas / paneles ============ */
+.panel{
+  background:var(--panel);
+  border:1px solid #eef2ff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card{ composes: panel; padding:16px; transition:transform .15s ease }
+.card:hover{ transform: translateY(-2px); }
+
+/* ============ Botones ============ */
+button{
+  font-family: inherit;
+  border:none; cursor:pointer;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 14px; border-radius:12px; font-weight:700;
+  background:var(--color-primary-400); color:#fff; box-shadow:0 10px 24px rgba(38,85,166,.25);
+  transition: transform .06s ease, background .2s ease, box-shadow .2s ease;
+}
+.btn:hover{ background:var(--color-primary-500) }
+.btn:active{ transform: translateY(1px) }
+.btn.ghost{ background:#eef2ff; color:var(--color-primary-500); box-shadow:none }
+.btn.ghost:hover{ background:#e3e9ff }
+.btn.danger{ background:#ef4444; box-shadow:0 10px 24px rgba(239,68,68,.25) }
+.btn.success{ background:#22c55e; box-shadow:0 10px 24px rgba(34,197,94,.25) }
+
+.icon-btn{
+  border:1px solid #e6eafe; background:#fff; width:36px; height:36px; border-radius:10px;
+}
+.icon-btn:hover{ background:#f4f7ff }
+
+/* ============ Inputs / Selects ============ */
+input[type="text"], input[type="email"], input[type="number"], input[type="date"],
+select, .text-input, .select-input{
+  width:100%; padding:10px 12px; border-radius:12px;
+  background:#fff; border:1px solid #e6eafe; outline:none;
+  transition:border .2s, box-shadow .2s;
+}
+input:focus, select:focus{ border-color:var(--color-primary-400); box-shadow:var(--ring) }
+label{ display:block; font-size:.9rem; color:#334155; margin:6px 0 6px }
+
+/* ============ Tablas globales ============ */
+.table-wrap{ overflow:auto; border-radius:14px; border:1px solid #e6eafe; box-shadow:var(--shadow); }
+table{ width:100%; border-collapse:collapse; background:var(--panel) }
+thead th{
+  position:sticky; top:0; z-index:1;
+  background:#f7f9ff; color:#334155; font-size:.85rem; letter-spacing:.3px;
+  border-bottom:1px solid #e6eafe; padding:12px; text-align:left;
+}
+tbody td{ border-top:1px solid #eff3ff; padding:12px; }
+tbody tr:hover{ background:#f8fbff }
+td.num, th.num{ text-align:right; font-variant-numeric: tabular-nums }
+
+/* ============ Badges ============ */
+.badge{
+  display:inline-flex; align-items:center; gap:6px; padding:4px 8px;
+  border-radius:999px; font-size:.78rem; font-weight:700;
+  background:#eef2ff; color:#1e3a8a; border:1px solid #e0e7ff;
+}
+.badge.success{ background:#eafff3; color:#15803d; border-color:#bbf7d0 }
+.badge.warning{ background:#fff7e6; color:#a16207; border-color:#fde68a }
+.badge.danger{ background:#ffecec; color:#b91c1c; border-color:#fecaca }
+
+/* ============ Progreso (Stock) ============ */
+.progress{ position:relative; height:30px; background:#eaf0f8; border-radius:10px; overflow:hidden }
+.progress__bar{ position:absolute; inset:0 auto 0 0; height:100%; }
+.progress__txt{ position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  color:#0f172a; font-weight:700; font-size:14px }
+
+/* ============ Hero Home ============ */
+.hero{
+  display:grid; grid-template-columns: 1.3fr 1fr; gap:22px; align-items:center;
+  margin:8px 0 22px;
+}
+.hero__title{ margin:0 0 6px; font-size:clamp(24px, 3vw, 34px); }
+.hero__lead{ margin:0; color:var(--muted) }
+.hero__image{
+  min-height:220px; border-radius:18px; overflow:hidden;
+  background:url('https://images.unsplash.com/photo-1543363136-3bb31834a235?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;
+  box-shadow: var(--shadow);
+}
+@media (max-width:900px){ .hero{ grid-template-columns:1fr } }
+
+/* KPIs */
+.kpis{ display:grid; grid-template-columns: repeat(4, 1fr); gap:14px }
+@media (max-width:900px){ .kpis{ grid-template-columns: 1fr 1fr } }
+.kpi{ display:flex; align-items:center; justify-content:space-between; padding:14px; border-radius:14px;
+  background:#fff; border:1px solid #eff3ff; box-shadow:var(--shadow) }
+.kpi .val{ font-size:1.2rem; font-weight:800 }
+
+/* ============ Helpers ============ */
+.mt-2{ margin-top:12px } .mt-3{ margin-top:18px } .mt-4{ margin-top:24px }
+.actions{ display:flex; gap:8px; align-items:center }
+.center{ text-align:center }

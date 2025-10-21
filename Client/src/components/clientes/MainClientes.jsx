@@ -3,118 +3,81 @@ import axios from 'axios';
 import { FaWhatsapp } from 'react-icons/fa';
 import ClientesDelete from './ClientesDelete';
 import ClientesCreate from './ClientesCreate';
-import {useApiContext} from '../../contexts/api/ApiContext'
+import {useApiContext} from '../../contexts/api/ApiContext';
+import '../../styles/style.css';
 
-const MainClientes = ({}) => {
+const MainClientes = () => {
   const { API_URL } = useApiContext();
   const [clientes, setClientes] = useState([]);
   const [clienteEdit, setClienteEdit] = useState(null);
 
-  // Llamada a la API para obtener clientes
   const getClientes = async () => {
     try {
       const response = await axios.get(`${API_URL}/clientes`);
-      if (Array.isArray(response.data)) {
-        setClientes(response.data);
-      } else {
-        console.error('La respuesta del servidor no es un arreglo:', response.data);
-        setClientes([]);
-      }
+      setClientes(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error al traer los clientes:', error);
     }
   };
 
-  useEffect(() => {
-    getClientes(); // Llamada inicial para obtener los clientes
-  }, [API_URL]);
+  useEffect(() => { getClientes(); }, [API_URL]);
 
-  // Función que maneja la eliminación de un cliente
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_URL}/clientes/${id}`);
-      // Eliminar de la lista sin recargar
-      setClientes((prevClientes) =>
-        prevClientes.filter((cliente) => cliente.id_cliente !== id)
-      );
-      alert("Se eliminó el cliente correctamente")
-      console.log('Cliente eliminado correctamente');
+      setClientes((prev) => prev.filter((c) => c.id_cliente !== id));
+      alert("Se eliminó el cliente correctamente");
     } catch (error) {
-      if (error.response?.status === 404) {
-        console.warn(`El cliente con ID ${id} ya no existe.`);
-      } else {
-        console.error('Error al eliminar el cliente:', error);
-      }
+      console.error('Error al eliminar el cliente:', error);
     }
   };
 
-  const handleAdd = (nuevoCliente) => {
-    setClientes((prevClientes) => [...prevClientes, nuevoCliente]);
-    alert('Cliente agregado correctamente');
-    getClientes();
-  };
-
-  const handleUpdate = (clienteActualizado) => {
-    setClientes((prevClientes) =>
-      prevClientes.map((cliente) =>
-        cliente.id_cliente === clienteActualizado.id_cliente ? clienteActualizado : cliente
-      )
-    );
-    setClienteEdit(null);
-    alert('Cliente actualizado correctamente');
-    getClientes();
-  };
-
-  const handleEdit = (cliente) => {
-    setClienteEdit(cliente);
-  };
-
-  const handleWhatsAppClick = (numero) => {
-    window.open(`https://wa.me/${numero}`, '_blank');
-  };
+  const handleAdd = (nuevo) => { setClientes((p) => [...p, nuevo]); getClientes(); };
+  const handleUpdate = (upd) => { setClientes((p) => p.map(c => c.id_cliente === upd.id_cliente ? upd : c)); setClienteEdit(null); getClientes(); };
+  const handleEdit = (c) => setClienteEdit(c);
+  const handleWhatsAppClick = (n) => window.open(`https://wa.me/${n}`, '_blank');
 
   return (
-    <div>
-      <h1>Lista de Clientes</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Número de Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map((cliente) => (
-            <tr key={cliente.id_cliente}>
-              <td>{cliente.nombre_cliente}</td>
-              <td>{cliente.apellido_cliente}</td>
-              <td>{cliente.mail_cliente}</td>
-              <td>{cliente.numero_cliente}</td>
-              <td>
-                <ClientesDelete 
-                  cliente={cliente} 
-                  API_URL={API_URL} 
-                  onDelete={handleDelete} 
-                />
-                <button onClick={() => handleEdit(cliente)}>Editar</button>
-                <button onClick={() => handleWhatsAppClick(cliente.numero_cliente)}>
-                  <FaWhatsapp /> WhatsApp
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="container-page">
+      <h1 className="center">Lista de Clientes</h1>
 
-      <ClientesCreate
-        onAdd={handleAdd}
-        onEdit={handleUpdate}
-        cliente={clienteEdit}
-        API_URL={API_URL}
-      />
+      <div className="table-wrap mt-3">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Número</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clientes.map((cliente) => (
+              <tr key={cliente.id_cliente}>
+                <td>{cliente.nombre_cliente}</td>
+                <td>{cliente.apellido_cliente}</td>
+                <td>{cliente.mail_cliente}</td>
+                <td>{cliente.numero_cliente}</td>
+                <td>
+                  <div className="actions">
+                    <ClientesDelete cliente={cliente} onDelete={handleDelete} />
+                    <button className="btn ghost" onClick={() => handleEdit(cliente)}>Editar</button>
+                    <button className="btn" onClick={() => handleWhatsAppClick(cliente.numero_cliente)}>
+                      <FaWhatsapp /> WhatsApp
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card mt-3">
+        <h3 style={{marginTop:0}}>{clienteEdit ? "Editar Cliente" : "Crear Cliente"}</h3>
+        <ClientesCreate onAdd={handleAdd} onEdit={handleUpdate} cliente={clienteEdit} />
+      </div>
     </div>
   );
 };
